@@ -23,6 +23,24 @@ public class BasicCommands {
 
     }
 
+    @Command(name="afk",description="se mettre afk")
+    public void afk(Member member, JDA jda, Main main, Guild guild, TextChannel channel){
+
+        if(member.getRoles().contains(jda.getRolesByName("afk", true).get(0))){
+
+            guild.getController().removeSingleRoleFromMember(member, jda.getRolesByName("afk", true).get(0)).complete();
+
+            channel.sendMessage("Vous n'êtes désormais plus afk !").queue();
+
+        } else {
+
+            guild.getController().addSingleRoleToMember(member, jda.getRolesByName("afk", true).get(0)).complete();
+            channel.sendMessage("Vous êtes désormais afk !").queue();
+
+        }
+
+    }
+
     @Command(name="github",description = "Avoir accès au channel github")
     public void github(JDA jda, Member member, TextChannel channel, Guild guild, Main main){
 

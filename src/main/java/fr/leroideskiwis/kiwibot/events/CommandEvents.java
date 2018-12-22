@@ -1,7 +1,10 @@
 package fr.leroideskiwis.kiwibot.events;
 
 import fr.leroideskiwis.kiwibot.Main;
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.PrivateChannel;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -15,6 +18,20 @@ public class CommandEvents extends ListenerAdapter {
 
     }
 
+    private void checkAfk(Message msg, TextChannel channel){
+
+        for(Member m : msg.getMentionedMembers()){
+
+            if(m.getRoles().contains(main.getJda().getRolesByName("afk", true).get(0))){
+
+                channel.sendMessage(m.getUser().getName()+" est actuellement afk !").queue();
+
+            }
+
+        }
+
+    }
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
@@ -23,8 +40,10 @@ public class CommandEvents extends ListenerAdapter {
 
         if(msg.startsWith(main.getPrefixe())) {
 
-            main.getCommandCore().commandUser(msg.replaceFirst(main.getPrefixe(), ""), event);
+           if(!main.getCommandCore().commandUser(msg.replaceFirst(main.getPrefixe(), ""), event))return;
 
         }
+
+        checkAfk(event.getMessage(), event.getTextChannel());
     }
 }

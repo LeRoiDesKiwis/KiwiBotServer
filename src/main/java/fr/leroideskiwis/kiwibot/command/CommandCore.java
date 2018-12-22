@@ -75,7 +75,9 @@ public class CommandCore {
 
     }
 
-    public void commandUser(String cmd, MessageReceivedEvent e){
+    public boolean commandUser(String cmd, MessageReceivedEvent e){
+
+        boolean bool = true;
 
         try{
 
@@ -84,15 +86,18 @@ public class CommandCore {
                 if(simpleCommand.getName().equalsIgnoreCase(cmd.split(" ")[0]) && (simpleCommand.getExecutorType() == Command.ExecutorType.ALL || simpleCommand.getExecutorType() == Command.ExecutorType.USER)) execute(Command.ExecutorType.USER, simpleCommand, cmd, e);
 
             }
+            bool = false;
 
         }catch(Exception ex){
 
             EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Erreur !").setDescription(ex.getMessage());
             e.getTextChannel().sendMessage(builder.build()).queue();
             ex.printStackTrace();
+            bool = true;
 
         }
 
+        return bool;
     }
 
     private String[] getArgs(String s){

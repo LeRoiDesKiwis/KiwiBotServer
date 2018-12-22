@@ -80,7 +80,7 @@ public class CommandGiveAway {
 
             int chance = (int)((1.0/(double)members.size())*100.0);
 
-            EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN).setTitle("Il y a"+members.size()+" participants : chaque participant à "+(chance < 1 ? "< 1" : chance)+"% de chances de gagner.");
+            EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN).setTitle("Il y a "+members.size()+" participants : chaque participant à "+(chance < 1 ? "< 1" : chance)+"% de chances de gagner.");
             for(Member participant : members){
 
                 builder.addField(participant.getUser().getName(), "inscrit(e)", true);
