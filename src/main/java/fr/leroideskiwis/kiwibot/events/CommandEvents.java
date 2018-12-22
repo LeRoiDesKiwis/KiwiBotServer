@@ -40,7 +40,7 @@ public class CommandEvents extends ListenerAdapter {
 
         if(msg.startsWith(main.getPrefixe())) {
 
-           if(!main.getCommandCore().commandUser(msg.replaceFirst(main.getPrefixe(), ""), event))return;
+           main.getCommandCore().commandUser(msg.replaceFirst(main.getPrefixe(), ""), event);
 
         }
 

@@ -75,29 +75,79 @@ public class CommandCore {
 
     }
 
-    public boolean commandUser(String cmd, MessageReceivedEvent e){
+    public String getCommand(String s){
+        return s.split(" ")[0];
+    }
 
-        boolean bool = true;
+    private String checkAliase(String cmd, String toTest){
 
+        String finalStr = "";
+
+        for(int i = 0; i < cmd.length(); i++){
+            try {
+                finalStr += toTest.toCharArray()[i];
+            }catch(Exception e){
+                break;
+            }
+
+        }
+
+        return finalStr;
+
+    }
+
+    public void commandUser(String s, MessageReceivedEvent e){
+
+
+        List<SimpleCommand> available = new ArrayList<>();
+
+        String cmd = getCommand(s);
         try{
 
             for(SimpleCommand simpleCommand : commands){
 
-                if(simpleCommand.getName().equalsIgnoreCase(cmd.split(" ")[0]) && (simpleCommand.getExecutorType() == Command.ExecutorType.ALL || simpleCommand.getExecutorType() == Command.ExecutorType.USER)) execute(Command.ExecutorType.USER, simpleCommand, cmd, e);
+
+                    if (!(simpleCommand.getExecutorType() == Command.ExecutorType.ALL || simpleCommand.getExecutorType() == Command.ExecutorType.USER))
+                        continue;
+                    if (cmd.equalsIgnoreCase(checkAliase(cmd, simpleCommand.getName()))) {
+                        available.add(simpleCommand);
+
+                    }
 
             }
-            bool = false;
+
+            if(available.size() == 0) return;
+            else {
+
+                if(available.size() > 1){
+
+                    StringBuilder builder = new StringBuilder();
+                    for(SimpleCommand aCmd : available){
+
+                        builder.append(aCmd.getName()).append(", ");
+
+                    }
+                    e.getTextChannel().sendMessage("Availables commands : "+builder.toString()).queue();
+
+                } else {
+
+                    execute(Command.ExecutorType.USER, available.get(0), cmd, e);
+
+                }
+
+            }
+
 
         }catch(Exception ex){
 
             EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Erreur !").setDescription(ex.getMessage());
             e.getTextChannel().sendMessage(builder.build()).queue();
             ex.printStackTrace();
-            bool = true;
+
 
         }
 
-        return bool;
+
     }
 
     private String[] getArgs(String s){
