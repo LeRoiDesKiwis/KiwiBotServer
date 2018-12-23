@@ -7,6 +7,8 @@ import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
@@ -48,6 +50,16 @@ public class Main extends ListenerAdapter implements Runnable{
         return commandCore;
     }
 
+    public void addRoleMember(Guild g, Member m){
+
+        if(!m.getRoles().contains(jda.getRoleById(obs.membreRole))){
+
+            g.getController().addSingleRoleToMember(m, jda.getRoleById(obs.membreRole)).queue();
+
+        }
+
+    }
+
     @Override
     public void onReady(ReadyEvent event) {
     }
@@ -63,6 +75,16 @@ public class Main extends ListenerAdapter implements Runnable{
         if(!isDebug()) jda.addEventListener(this);
         if(!isDebug()) jda.addEventListener(new OtherEvents(this));
         obs = new Objects();
+
+        for(Guild g : jda.getGuilds()){
+
+            for(Member m : g.getMembers()){
+
+                addRoleMember(g, m);
+
+            }
+
+        }
 
     }
 

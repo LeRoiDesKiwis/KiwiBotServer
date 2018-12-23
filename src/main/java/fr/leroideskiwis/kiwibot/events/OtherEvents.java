@@ -24,6 +24,7 @@ public class OtherEvents extends ListenerAdapter {
 
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN).setTitle("Bienvenue "+event.getMember().getUser().getName()+" !");
         builder.setDescription("Passe du bon temps sur notre serveur ! \uD83D\uDE01");
+        main.addRoleMember(event.getGuild(), event.getMember());
 
         main.getJda().getTextChannelById(main.getObs().welcomeTX).sendMessage(builder.build()).queue();
 
