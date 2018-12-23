@@ -132,7 +132,7 @@ public class CommandCore {
 
                 } else {
 
-                    execute(Command.ExecutorType.USER, available.get(0), cmd, e);
+                    execute(Command.ExecutorType.USER, available.get(0), e.getMessage().getContentDisplay(), e);
 
                 }
 
