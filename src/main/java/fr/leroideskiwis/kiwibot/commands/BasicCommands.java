@@ -59,6 +59,15 @@ public class BasicCommands {
 
     }
 
+    @Command(name="purge",op=true)
+    public void onPurge(String[] args, TextChannel channel, Member member){
+
+        channel.getHistory().retrievePast(Integer.parseInt(args[0])).complete().forEach(m -> m.delete().complete());
+
+        channel.sendMessage(Integer.parseInt(args[0])+" messages ont été supprimés !").queue();
+
+    }
+
     @Command(name="help")
     public void onHelp(Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
 

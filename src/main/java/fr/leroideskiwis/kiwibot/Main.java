@@ -2,6 +2,7 @@ package fr.leroideskiwis.kiwibot;
 
 import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.events.CommandEvents;
+import fr.leroideskiwis.kiwibot.events.NoRaid;
 import fr.leroideskiwis.kiwibot.events.OtherEvents;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.AccountType;
@@ -13,10 +14,6 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
 import java.util.Scanner;
 
 public class Main extends ListenerAdapter implements Runnable{
@@ -29,6 +26,11 @@ public class Main extends ListenerAdapter implements Runnable{
     private boolean running = true;
     private Scanner scan = new Scanner(System.in);
     private boolean debug;
+    private NoRaid noraid;
+
+    public NoRaid getNoraid() {
+        return noraid;
+    }
 
     public boolean isDebug(){
         return debug;
@@ -71,9 +73,11 @@ public class Main extends ListenerAdapter implements Runnable{
         commandCore = new CommandCore(this);
         jda = new JDABuilder(AccountType.BOT).setToken(token).build();
         jda.awaitReady();
+        noraid = new NoRaid(this);
         jda.addEventListener(new CommandEvents(this));
         if(!isDebug()) jda.addEventListener(this);
         if(!isDebug()) jda.addEventListener(new OtherEvents(this));
+        if(!isDebug()) jda.addEventListener(noraid);
         obs = new Objects();
 
         for(Guild g : jda.getGuilds()){
