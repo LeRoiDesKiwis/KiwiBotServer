@@ -63,28 +63,32 @@ public class BasicCommands {
     public void onHelp(Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
 
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN);
+        EmbedBuilder builderO = new EmbedBuilder().setColor(Color.RED);
 
         int count = 0;
+        int countO = 0;
 
         for(SimpleCommand command : core.getCommands()){
 
-            if(command.needOp()){
-                if(guild.getOwner().equals(member)) {
+            if(!command.needOp()){
+
                     builder.addField(command.getName(), command.getDescription(), false);
 
                     count++;
-                }
-                continue;
-            }
 
-            builder.addField(command.getName(), command.getDescription(), false);
-            count++;
+                continue;
+            } else {
+                builderO.addField(command.getName(), command.getDescription(), false);
+                countO++;
+            }
 
         }
 
         builder.setTitle(count+" commandes ; préfixe : "+main.getPrefixe());
+        builderO.setTitle(countO+" commandes reservé au propriétaire du serveur");
 
         channel.sendMessage(builder.build()).queue();
+        if(member.equals(guild.getOwner())) channel.sendMessage(builderO.build()).queue();
 
     }
 

@@ -34,7 +34,7 @@ public class CommandGiveAway {
 
     }
 
-    private List<Member> getParticipants(Guild guild, Role role){
+    private List<Member> getParticipants(Main main, Guild guild, Role role){
         List<Member> members = new ArrayList<>();
 
         for(Member member : guild.getMembers()){
@@ -43,6 +43,7 @@ public class CommandGiveAway {
 
                 if(roleM.equals(role)) {
                     members.add(member);
+                    if(!main.getObs().pena.contains(member.getUser().getIdLong())) members.add(member);
                     break;
                 }
 
@@ -57,9 +58,7 @@ public class CommandGiveAway {
     public void onGo(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member){
 
         channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-        List<Member> members = getParticipants(guild, jda.getRoleById(main.getObs().concoursRole));
-
-
+        List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getObs().concoursRole));
 
         if(args.length != 0 && args[0].equalsIgnoreCase("confirm")){
 
@@ -78,12 +77,26 @@ public class CommandGiveAway {
 
         } else {
 
-            int chance = (int)((1.0/(double)members.size())*100.0);
+            EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN).setTitle("Il y a "+members.size()+" participants.");
 
-            EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN).setTitle("Il y a "+members.size()+" participants : chaque participant à "+(chance < 1 ? "< 1" : chance)+"% de chances de gagner.");
+            List<Member> memberst = new ArrayList<>();
+
             for(Member participant : members){
 
-                builder.addField(participant.getUser().getName(), "inscrit(e)", true);
+                int count = 0;
+
+                if(memberst.contains(participant)) continue;
+
+                for(Member member1 : members){
+
+                    if(member1.equals(participant)) count++;
+
+                }
+                int chance = (int)((count/(double)members.size())*100.0);
+
+                builder.addField(participant.getUser().getName(), chance+"% de chances de gagner !", true);
+
+                memberst.add(participant);
 
             }
 
