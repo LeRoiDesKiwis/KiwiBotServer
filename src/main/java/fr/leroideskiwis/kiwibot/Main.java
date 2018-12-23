@@ -26,6 +26,11 @@ public class Main extends ListenerAdapter implements Runnable{
     private Objects obs;
     private boolean running = true;
     private Scanner scan = new Scanner(System.in);
+    private boolean debug;
+
+    public boolean isDebug(){
+        return debug;
+    }
 
     public JDA getJda() {
         return jda;
@@ -43,13 +48,20 @@ public class Main extends ListenerAdapter implements Runnable{
         return commandCore;
     }
 
-    private Main(String token) throws LoginException {
+    @Override
+    public void onReady(ReadyEvent event) {
+    }
 
-        jda = new JDABuilder(AccountType.BOT).setToken(token).build();
+    private Main(String token, String[] args) throws LoginException, InterruptedException {
+
+        if(args.length != 0 && args[0].equalsIgnoreCase("debug")) debug = true;
+
         commandCore = new CommandCore(this);
+        jda = new JDABuilder(AccountType.BOT).setToken(token).build();
+        jda.awaitReady();
         jda.addEventListener(new CommandEvents(this));
-        jda.addEventListener(this);
-        jda.addEventListener(new OtherEvents(this));
+        if(!isDebug()) jda.addEventListener(this);
+        if(!isDebug()) jda.addEventListener(new OtherEvents(this));
         obs = new Objects();
 
     }
@@ -57,7 +69,7 @@ public class Main extends ListenerAdapter implements Runnable{
     public static void main(String... args){
 
         try {
-            new Thread(new Main(new Privates().token), "main-bot").start();
+            new Thread(new Main(new Privates().token, args), "main-bot").start();
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -77,9 +89,17 @@ public class Main extends ListenerAdapter implements Runnable{
     @Override
     public void run() {
 
+        try {
+            jda.awaitReady();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
         while(running){
+            System.out.print(jda.getSelfUser().getName()+" > ");
 
             if(scan.hasNextLine()) commandCore.commandConsole(scan.nextLine());
+            System.out.println();
 
         }
 

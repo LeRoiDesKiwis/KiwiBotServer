@@ -2,6 +2,7 @@ package fr.leroideskiwis.kiwibot.events;
 
 import fr.leroideskiwis.kiwibot.Main;
 import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
@@ -25,6 +26,23 @@ public class OtherEvents extends ListenerAdapter {
         builder.setDescription("Passe du bon temps sur notre serveur ! \uD83D\uDE01");
 
         main.getJda().getTextChannelById(main.getObs().welcomeTX).sendMessage(builder.build()).queue();
+
+        new Thread(() -> {
+
+            try {
+
+                PrivateChannel channel = event.getMember().getUser().openPrivateChannel().complete();
+                channel.sendMessage("N'oublie pas de participer au concours (si il y en a un en ce moment) en faisait ;gr dans #commande-bots !").queue();
+
+            }catch(Exception e){
+
+                event.getGuild().getTextChannelById(main.getObs().welcomeTX).sendMessage(event.getMember().getAsMention()+", impossible de vous envoyer de mp :/").queue();
+
+            }
+
+
+        },"join-"+event.getMember().getUser().getId()).start();
+
 
     }
 

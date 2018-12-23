@@ -4,6 +4,7 @@ import fr.leroideskiwis.kiwibot.Main;
 import fr.leroideskiwis.kiwibot.command.printstreams.PrintStreamChannel;
 import fr.leroideskiwis.kiwibot.commands.BasicCommands;
 import fr.leroideskiwis.kiwibot.commands.CommandGiveAway;
+import fr.leroideskiwis.kiwibot.commands.CommandsModerator;
 import fr.leroideskiwis.kiwibot.exceptions.KiwiException;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.EmbedBuilder;

@@ -1,6 +1,7 @@
-package fr.leroideskiwis.kiwibot.command;
+package fr.leroideskiwis.kiwibot.commands;
 
 import fr.leroideskiwis.kiwibot.Main;
+import fr.leroideskiwis.kiwibot.command.Command;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
