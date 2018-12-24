@@ -14,9 +14,12 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import javax.security.auth.login.LoginException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Scanner;
 
-public class Main extends ListenerAdapter implements Runnable{
+public class Main extends ListenerAdapter implements Runnable {
 
     private Utils utils = new Utils();
     private String prefixe = ";";
@@ -32,7 +35,7 @@ public class Main extends ListenerAdapter implements Runnable{
         return noraid;
     }
 
-    public boolean isDebug(){
+    public boolean isDebug() {
         return debug;
     }
 
@@ -52,9 +55,9 @@ public class Main extends ListenerAdapter implements Runnable{
         return commandCore;
     }
 
-    public void addRoleMember(Guild g, Member m){
+    public void addRoleMember(Guild g, Member m) {
 
-        if(!m.getRoles().contains(jda.getRoleById(obs.membreRole))){
+        if (!m.getRoles().contains(jda.getRoleById(obs.membreRole))) {
 
             g.getController().addSingleRoleToMember(m, jda.getRoleById(obs.membreRole)).queue();
 
@@ -66,23 +69,23 @@ public class Main extends ListenerAdapter implements Runnable{
     public void onReady(ReadyEvent event) {
     }
 
-    private Main(String token, String[] args) throws LoginException, InterruptedException {
+    private Main(String[] args) throws LoginException, InterruptedException {
 
-        if(args.length != 0 && args[0].equalsIgnoreCase("debug")) debug = true;
+        if (args.length != 0 && args[0].equalsIgnoreCase("debug")) debug = true;
 
         commandCore = new CommandCore(this);
-        jda = new JDABuilder(AccountType.BOT).setToken(token).build();
+        jda = new JDABuilder(AccountType.BOT).setToken(readToken()).build();
         jda.awaitReady();
         noraid = new NoRaid(this);
         jda.addEventListener(new CommandEvents(this));
-        if(!isDebug()) jda.addEventListener(this);
-        if(!isDebug()) jda.addEventListener(new OtherEvents(this));
-        if(!isDebug()) jda.addEventListener(noraid);
+        if (!isDebug()) jda.addEventListener(this);
+        if (!isDebug()) jda.addEventListener(new OtherEvents(this));
+        if (!isDebug()) jda.addEventListener(noraid);
         obs = new Objects();
 
-        for(Guild g : jda.getGuilds()){
+        for (Guild g : jda.getGuilds()) {
 
-            for(Member m : g.getMembers()){
+            for (Member m : g.getMembers()) {
 
                 addRoleMember(g, m);
 
@@ -92,11 +95,11 @@ public class Main extends ListenerAdapter implements Runnable{
 
     }
 
-    public static void main(String... args){
+    public static void main(String... args) {
 
         try {
-            new Thread(new Main(new Privates().token, args), "main-bot").start();
-        }catch(Exception e){
+            new Thread(new Main(args), "main-bot").start();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -106,7 +109,7 @@ public class Main extends ListenerAdapter implements Runnable{
         return prefixe;
     }
 
-    public Utils getUtils(){
+    public Utils getUtils() {
 
         return utils;
 
@@ -121,10 +124,10 @@ public class Main extends ListenerAdapter implements Runnable{
             e.printStackTrace();
         }
 
-        while(running){
-            System.out.print(jda.getSelfUser().getName()+" > ");
+        while (running) {
+            System.out.print(jda.getSelfUser().getName() + " > ");
 
-            if(scan.hasNextLine()) commandCore.commandConsole(scan.nextLine());
+            if (scan.hasNextLine()) commandCore.commandConsole(scan.nextLine());
             System.out.println();
 
         }
@@ -139,4 +142,25 @@ public class Main extends ListenerAdapter implements Runnable{
         return obs;
 
     }
+
+    public String readToken() {
+
+        try {
+
+            File file = new File("./token");
+            if (!file.exists()) file.createNewFile();
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            String token = br.readLine();
+            br.close();
+            return token;
+
+        } catch (Throwable e) {
+            e.printStackTrace();
+            return null;
+        }
+
+    }
+
 }
