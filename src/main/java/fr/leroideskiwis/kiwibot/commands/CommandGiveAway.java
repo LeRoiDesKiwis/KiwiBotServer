@@ -216,25 +216,20 @@ public class CommandGiveAway {
         if (args.length != 0 && args[0].equalsIgnoreCase("confirm")) {
 
             channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-            List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
 
-            if (members.size() == 0) channel.sendMessage("Il n'y a aucun participant.").queue();
-            else {
-
-                Member winner = members.get(new Random().nextInt(members.size()));
-                channel.sendMessage(winner.getUser().getName() + " a gagné ! Bravo à lui/elle !").queue();
-
-                for (Member member1 : members) {
-
-                    guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
-
-                }
-
+            Map<Member, Integer> usersInvitation = countUseOfInvitations(guild);
+            if (usersInvitation.isEmpty()) {
+                channel.sendMessage("Il n'y a aucun participant.").queue();
+                return;
             }
+
+            Member winner = takeWinner(guild);
+            channel.sendMessage(winner.getUser().getName() + " a gagné ! Bravo à lui/elle !").queue();
+
+            for (Member member1 : usersInvitation.keySet())
+                guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
         } else
             channel.sendMessage("êtes-vous sûr de vouloir procéder au tirage au sort ? Faites ;ggo confirm si vous êtes sûr.").queue();
-
-
     }
 
 }
