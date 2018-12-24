@@ -63,7 +63,7 @@ public class NoRaid extends ListenerAdapter {
 
                 cm.setTime(1);
                 event.getTextChannel().sendMessage(m.getAsMention() + ", Tu l'as cherché hein :/ ! Tu es maintenant mute :grin:").queue();
-                event.getGuild().getController().addSingleRoleToMember(event.getMember(), main.getJda().getRoleById(main.getObs().muteRole)).queue();
+                event.getGuild().getController().addSingleRoleToMember(event.getMember(), main.getJda().getRoleById(main.getConfig("muteRole"))).queue();
 
             }
 

@@ -23,7 +23,7 @@ public class CommandGiveAway {
     public void onGPart(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member){
 
         channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-        List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getObs().concoursRole));
+        List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
 
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN);
 
@@ -77,13 +77,13 @@ public class CommandGiveAway {
 
         }
 
-        if(member.getRoles().contains(jda.getRoleById(main.getObs().concoursRole))){
+        if(member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))){
 
             channel.sendMessage("Erreur : vous êtes déjà inscrit !").queue();
 
 
         } else {
-            guild.getController().addSingleRoleToMember(member, jda.getRoleById(main.getObs().concoursRole)).queue();
+            guild.getController().addSingleRoleToMember(member, jda.getRoleById(main.getConfig("concoursRole"))).queue();
 
             channel.sendMessage("Vous êtes maintenant inscrit au concours !").queue();
 
@@ -169,7 +169,7 @@ public class CommandGiveAway {
             if(args.length != 0 && args[0].equalsIgnoreCase("confirm")) {
 
                 channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-                List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getObs().concoursRole));
+                List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
 
                 if (members.size() == 0) channel.sendMessage("Il n'y a aucun participant.").queue();
                 else {
@@ -179,7 +179,7 @@ public class CommandGiveAway {
 
                     for (Member member1 : members) {
 
-                        guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getObs().concoursRole)).queue();
+                        guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
 
                     }
 

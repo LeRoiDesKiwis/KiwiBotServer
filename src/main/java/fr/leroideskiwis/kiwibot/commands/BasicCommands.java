@@ -44,15 +44,15 @@ public class BasicCommands {
     @Command(name="github",description = "Avoir accès au channel github")
     public void github(JDA jda, Member member, TextChannel channel, Guild guild, Main main){
 
-        if(member.getRoles().contains(jda.getRoleById(main.getObs().githubRole))){
+        if(member.getRoles().contains(jda.getRoleById(main.getConfig("githubRole")))){
 
-            guild.getController().removeSingleRoleFromMember(member, jda.getRoleById(main.getObs().githubRole)).complete();
+            guild.getController().removeSingleRoleFromMember(member, jda.getRoleById(main.getConfig("githubRole"))).complete();
 
             channel.sendMessage("Vous n'avez désormais plus accès aux channels github !").queue();
 
         } else {
 
-            guild.getController().addSingleRoleToMember(member, jda.getRoleById(main.getObs().githubRole)).complete();
+            guild.getController().addSingleRoleToMember(member, jda.getRoleById(main.getConfig("githubRole"))).complete();
             channel.sendMessage("Vous avez désormais accès aux channels github !").queue();
 
         }

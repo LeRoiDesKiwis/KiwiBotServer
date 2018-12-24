@@ -26,7 +26,7 @@ public class OtherEvents extends ListenerAdapter {
         builder.setDescription("Passe du bon temps sur notre serveur ! \uD83D\uDE01");
         main.addRoleMember(event.getGuild(), event.getMember());
 
-        main.getJda().getTextChannelById(main.getObs().welcomeTX).sendMessage(builder.build()).queue();
+        main.getJda().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(builder.build()).queue();
 
         new Thread(() -> {
 
@@ -37,7 +37,7 @@ public class OtherEvents extends ListenerAdapter {
 
             }catch(Exception e){
 
-                event.getGuild().getTextChannelById(main.getObs().welcomeTX).sendMessage(event.getMember().getAsMention()+", impossible de vous envoyer de mp :/").queue();
+                event.getGuild().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(event.getMember().getAsMention()+", impossible de vous envoyer de mp :/").queue();
 
             }
 
@@ -52,6 +52,6 @@ public class OtherEvents extends ListenerAdapter {
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle(event.getMember().getUser().getName()+" a quitté le serveur !");
         builder.setDescription("on est tous triste de ce départ \uD83D\uDE2D");
 
-        main.getJda().getTextChannelById(main.getObs().welcomeTX).sendMessage(builder.build()).queue();
+        main.getJda().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(builder.build()).queue();
     }
 }

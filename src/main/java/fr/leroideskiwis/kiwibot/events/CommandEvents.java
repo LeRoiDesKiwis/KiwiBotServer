@@ -37,7 +37,7 @@ public class CommandEvents extends ListenerAdapter {
 
         String msg = event.getMessage().getContentDisplay();
         if(event.getChannel() instanceof PrivateChannel) return;
-        if(main.isDebug() && !event.getTextChannel().getId().equalsIgnoreCase(main.getObs().debugChannel.toString())) return;
+        if(main.isDebug() && !event.getTextChannel().getId().equalsIgnoreCase(main.getConfig("debugChannel"))) return;
 
         if(msg.startsWith(main.getPrefixe())) {
 

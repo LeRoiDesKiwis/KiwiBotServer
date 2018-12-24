@@ -25,7 +25,6 @@ public class Main extends ListenerAdapter implements Runnable {
     private String prefixe = ";";
     private JDA jda;
     private CommandCore commandCore;
-    private Objects obs;
     private boolean running = true;
     private Scanner scan = new Scanner(System.in);
     private boolean debug;
@@ -57,9 +56,9 @@ public class Main extends ListenerAdapter implements Runnable {
 
     public void addRoleMember(Guild g, Member m) {
 
-        if (!m.getRoles().contains(jda.getRoleById(obs.membreRole))) {
+        if (!m.getRoles().contains(jda.getRoleById(getConfig("membreRole")))) {
 
-            g.getController().addSingleRoleToMember(m, jda.getRoleById(obs.membreRole)).queue();
+            g.getController().addSingleRoleToMember(m, jda.getRoleById(getConfig("membreRole"))).queue();
 
         }
 
@@ -81,7 +80,6 @@ public class Main extends ListenerAdapter implements Runnable {
         if (!isDebug()) jda.addEventListener(this);
         if (!isDebug()) jda.addEventListener(new OtherEvents(this));
         if (!isDebug()) jda.addEventListener(noraid);
-        obs = new Objects();
 
         for (Guild g : jda.getGuilds()) {
 
@@ -136,10 +134,30 @@ public class Main extends ListenerAdapter implements Runnable {
         System.exit(1);
 
     }
+    public String getConfig(String path){
 
-    public Objects getObs() {
+        try {
 
-        return obs;
+            File file = new File("./config");
+            if (!file.exists()) file.createNewFile();
+
+            BufferedReader br = new BufferedReader(new FileReader(file));
+
+            String line = br.readLine();
+
+            while(line != null){
+
+                if(line.startsWith(path+": ")) return line.replaceFirst(path+": ", "");
+
+                line = br.readLine();
+            }
+
+        }catch(Throwable e){
+            e.printStackTrace();
+
+        }
+
+        return null;
 
     }
 
