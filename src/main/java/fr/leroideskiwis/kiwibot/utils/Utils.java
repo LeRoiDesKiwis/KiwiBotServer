@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 
 public class Utils {
 
-    public void debug(String s){
+    public void debug(String s, Object... obs){
 
-        System.err.println("[DEBUG] "+s);
+        System.out.println("[DEBUG] "+format(s, obs));
 
     }
 

@@ -111,6 +111,8 @@ public class CommandCore {
                     if (!(simpleCommand.getExecutorType() == Command.ExecutorType.ALL || simpleCommand.getExecutorType() == Command.ExecutorType.USER))
                         continue;
                     if (cmd.equalsIgnoreCase(checkAliase(cmd, simpleCommand.getName()))) {
+
+                        if(simpleCommand.needOp() && !e.getMember().equals(e.getGuild().getOwner())) continue;
                         available.add(simpleCommand);
 
                     }
@@ -209,6 +211,9 @@ public class CommandCore {
         if(type == Command.ExecutorType.CONSOLE || (!simpleCommand.needOp() || e.getAuthor().equals(e.getGuild().getOwner().getUser()))) {
 
             Thread thread = new Thread(() -> {
+
+
+
                 try {
                     simpleCommand.getMethod().invoke(simpleCommand.getObject(), objects);
                 } catch (IllegalAccessException e1) {
@@ -219,6 +224,7 @@ public class CommandCore {
             }, "command-"+simpleCommand.getName()+"-"+new Random().nextInt(99999));
             thread.setDaemon(true);
             thread.start();
+            main.getUtils().debug("Un nouvelle thread commande a été crée par %s : %s ", e.getMember().getUser().getName(), thread.getName());
         }
         else throw new KiwiException("Vous devez être le propriétaire du serveur pour exécuter cette commande !");
     }

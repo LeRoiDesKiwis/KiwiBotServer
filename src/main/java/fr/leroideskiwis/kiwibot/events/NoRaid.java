@@ -25,7 +25,11 @@ public class NoRaid extends ListenerAdapter {
 
         for(CustomMember key : howLong.keySet()){
 
-            if(key.getMember().equals(m)) return key;
+            try {
+
+                if (key.getMember().equals(m)) return key;
+
+            }catch(Exception e){continue;}
 
         }
 
