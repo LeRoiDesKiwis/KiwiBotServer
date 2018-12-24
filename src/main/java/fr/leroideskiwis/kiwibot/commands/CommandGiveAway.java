@@ -5,22 +5,23 @@ import fr.leroideskiwis.kiwibot.command.Command;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
+import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class CommandGiveAway {
 
-    @Command(name="ginfo",description = "Avoir les infos des giveaways")
-    public void gInfo(TextChannel tx){
+    @Command(name = "ginfo", description = "Avoir les infos des giveaways")
+    public void gInfo(TextChannel tx) {
 
         tx.sendMessage("Règles : un membre aléatoirement choisi dans la liste des participants gagne à la fin de chaque partie. Vous pouvez voir la liste des participants en faisant ;gpart. Vous avez aussi plus de chances de gagner si vous invitez des gens (5 utilisations = +1 fois compté dans la liste).\n\n**Pour participer, merci de faire ;gre !**").queue();
 
     }
 
-    @Command(name="gpart",description = "Voir la liste des participants")
-    public void onGPart(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member){
+    @Command(name = "gpart", description = "Voir la liste des participants")
+    public void onGPart(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member) {
 
         channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
         List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
@@ -31,23 +32,23 @@ public class CommandGiveAway {
 
         int number = 0;
 
-        for(Member participant : members){
+        for (Member participant : members) {
 
             int count = 0;
 
-            if(memberst.contains(participant)) continue;
+            if (memberst.contains(participant)) continue;
 
-            for(Member member1 : members){
+            for (Member member1 : members) {
 
-                if(member1.equals(participant)) {
+                if (member1.equals(participant)) {
                     count++;
                     continue;
                 }
 
             }
-            int chance = (int)((count/(double)members.size())*100.0);
+            int chance = (int) ((count / (double) members.size()) * 100.0);
 
-            builder.addField(participant.getUser().getName(), chance+"% de chances de gagner !", true);
+            builder.addField(participant.getUser().getName(), chance + "% de chances de gagner !", true);
 
 
             memberst.add(participant);
@@ -55,21 +56,20 @@ public class CommandGiveAway {
 
         }
 
-        builder.setTitle("Il y a "+number+" participants.");
+        builder.setTitle("Il y a " + number + " participants.");
 
         channel.sendMessage(builder.build()).queue();
-        channel.sendMessage("Faites "+main.getPrefixe()+"ggo confirm pour procéder au tirage au sort.").queue();
+        channel.sendMessage("Faites " + main.getPrefixe() + "ggo confirm pour procéder au tirage au sort.").queue();
 
     }
 
 
+    @Command(name = "gregister", description = "s'incrire au concours")
+    public void onRegister(Message msg, JDA jda, Guild guild, TextChannel channel, Main main, Member member) {
 
-    @Command(name="gregister", description = "s'incrire au concours")
-    public void onRegister(Message msg, JDA jda, Guild guild, TextChannel channel, Main main, Member member){
+        if (msg != null && member.equals(guild.getOwner()) && !msg.getMentionedMembers().isEmpty()) {
 
-        if(msg != null && member.equals(guild.getOwner()) && !msg.getMentionedMembers().isEmpty()){
-
-            for(Member m : msg.getMentionedMembers()){
+            for (Member m : msg.getMentionedMembers()) {
 
                 onRegister(null, jda, guild, channel, main, m);
 
@@ -77,7 +77,7 @@ public class CommandGiveAway {
 
         }
 
-        if(member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))){
+        if (member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
 
             channel.sendMessage("Erreur : vous êtes déjà inscrit !").queue();
 
@@ -92,18 +92,18 @@ public class CommandGiveAway {
 
     }
 
-    private List<Member> getParticipants(Main main, Guild guild, Role role){
+    private List<Member> getParticipants(Main main, Guild guild, Role role) {
         List<Member> members = new ArrayList<>();
 
-        for(Member member : guild.getMembers()){
+        for (Member member : guild.getMembers()) {
 
-            for(Role roleM : member.getRoles()){
+            for (Role roleM : member.getRoles()) {
 
-                if(roleM.equals(role)) {
+                if (roleM.equals(role)) {
 
                     Map<Member, Integer> invites = getInvites(guild);
 
-                    if(invites.containsKey(member)) {
+                    if (invites.containsKey(member)) {
 
                         int uses = invites.get(member);
 
@@ -116,7 +116,9 @@ public class CommandGiveAway {
                                 members.add(member);
 
                             }
-                        }catch(Exception ignored){continue;}
+                        } catch (Exception ignored) {
+                            continue;
+                        }
 
                     } else members.add(member);
 
@@ -130,11 +132,12 @@ public class CommandGiveAway {
         return members;
     }
 
-    public Map<Member, Integer> getInvites(Guild guild){
+    @Deprecated
+    public Map<Member, Integer> getInvites(Guild guild) {
 
         Map<Member, Integer> returnV = new HashMap<>();
 
-        for(Invite invite : guild.getInvites().complete()){
+        for (Invite invite : guild.getInvites().complete()) {
 
             try {
 
@@ -142,16 +145,16 @@ public class CommandGiveAway {
 
                 int newI = 0;
 
-                if (returnV.containsKey(m)){
+                if (returnV.containsKey(m)) {
 
-                    newI = returnV.get(m)+invite.getUses();
+                    newI = returnV.get(m) + invite.getUses();
                     returnV.remove(m);
 
                 } else newI = invite.getUses();
 
                 returnV.put(m, newI);
 
-            }catch(Exception e){
+            } catch (Exception e) {
 
                 continue;
 
@@ -163,29 +166,73 @@ public class CommandGiveAway {
 
     }
 
-    @Command(name="ggo", description = "Tirer au sort ou voir le nombre de participants",op=true)
-    public void onGo(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member){
+    /**
+     * Count the use of all invitations created by users
+     *
+     * @param guild The concerned guild
+     * @return A map associated all members who had create invitation with the number of uses for each of theses invitations
+     */
+    public Map<Member, Integer> countUseOfInvitations(@NotNull Guild guild) {
+        Objects.requireNonNull(guild);
 
-            if(args.length != 0 && args[0].equalsIgnoreCase("confirm")) {
+        Map<Member, Integer> invitations = new HashMap<>();
 
-                channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-                List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
+        for (Invite invite : guild.getInvites().complete()) {
+            Member member = guild.getMember(invite.getInviter());
 
-                if (members.size() == 0) channel.sendMessage("Il n'y a aucun participant.").queue();
-                else {
+            int totalUse = invitations.getOrDefault(member, 0);
+            totalUse += invite.getUses();
 
-                    Member winner = members.get(new Random().nextInt(members.size()));
-                    channel.sendMessage(winner.getUser().getName() + " a gagné ! Bravo à lui/elle !").queue();
+            invitations.put(member, totalUse);
+        }
 
-                    for (Member member1 : members) {
+        return invitations;
+    }
 
-                        guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
+    /**
+     * Take a winner chosen from all players who had invited others members
+     *
+     * @param guild The concerned guild
+     * @return A member taken from the list
+     */
+    public Member takeWinner(@NotNull Guild guild) {
+        Objects.requireNonNull(guild);
 
-                    }
+        List<Member> memberPoints = new ArrayList<>();
+        countUseOfInvitations(guild).forEach((member, invit) -> {
+            int points = ((int) (1.1 * Math.log(invit) + 1));
+
+            for (int i = 0; i < points; i++)
+                memberPoints.add(member);
+        });
+
+        int randomI = new Random().nextInt(memberPoints.size());
+        return memberPoints.get(randomI);
+    }
+
+    @Command(name = "ggo", description = "Tirer au sort ou voir le nombre de participants", op = true)
+    public void onGo(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member) {
+
+        if (args.length != 0 && args[0].equalsIgnoreCase("confirm")) {
+
+            channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
+            List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
+
+            if (members.size() == 0) channel.sendMessage("Il n'y a aucun participant.").queue();
+            else {
+
+                Member winner = members.get(new Random().nextInt(members.size()));
+                channel.sendMessage(winner.getUser().getName() + " a gagné ! Bravo à lui/elle !").queue();
+
+                for (Member member1 : members) {
+
+                    guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
 
                 }
-            } else channel.sendMessage("êtes-vous sûr de vouloir procéder au tirage au sort ? Faites ;ggo confirm si vous êtes sûr.").queue();
 
+            }
+        } else
+            channel.sendMessage("êtes-vous sûr de vouloir procéder au tirage au sort ? Faites ;ggo confirm si vous êtes sûr.").queue();
 
 
     }
