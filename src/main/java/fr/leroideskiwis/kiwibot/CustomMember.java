@@ -6,7 +6,7 @@ import net.dv8tion.jda.core.entities.Message;
 public class CustomMember {
 
     private final Member member;
-    private int time;
+    private int time = 1;
     private double[] twoLastTimes = new double[]{0D, 0D, 0D};
 
     public CustomMember(Member m){
@@ -52,7 +52,7 @@ public class CustomMember {
 
         }
 
-        double moyenne = total/3.0;
+        double moyenne = total/(double)twoLastTimes.length;
 
         boolean bool = System.currentTimeMillis()/1000 - moyenne < 2.0;
 

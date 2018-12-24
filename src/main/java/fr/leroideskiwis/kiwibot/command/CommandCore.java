@@ -123,9 +123,11 @@ public class CommandCore {
                 if(available.size() > 1){
 
                     StringBuilder builder = new StringBuilder();
-                    for(SimpleCommand aCmd : available){
+                    for(int i = 0; i < available.size(); i++){
 
-                        builder.append(aCmd.getName()).append(", ");
+
+                        builder.append(available.get(i).getName());
+                        if(i != available.size()-1) builder.append(", ");
 
                     }
                     e.getTextChannel().sendMessage("Availables commands : "+builder.toString()).queue();

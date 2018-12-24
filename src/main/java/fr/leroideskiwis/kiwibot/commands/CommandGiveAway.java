@@ -15,7 +15,7 @@ public class CommandGiveAway {
     @Command(name="ginfo",description = "Avoir les infos des giveaways")
     public void gInfo(TextChannel tx){
 
-        tx.sendMessage("Règles : un membre aléatoirement choisi dans la liste des participants gagne à la fin de chaque partie. Vous pouvez voir la liste des participants en faisant ;gpart. Vous avez aussi plus de chances de gagner si vous invitez des gens (5 utilisations = +1 fois compté dans la liste).").queue();
+        tx.sendMessage("Règles : un membre aléatoirement choisi dans la liste des participants gagne à la fin de chaque partie. Vous pouvez voir la liste des participants en faisant ;gpart. Vous avez aussi plus de chances de gagner si vous invitez des gens (5 utilisations = +1 fois compté dans la liste).\n\n**Pour participer, merci de faire ;gre !**").queue();
 
     }
 

@@ -49,16 +49,18 @@ public class NoRaid extends ListenerAdapter {
 
             int MAX = 4;
 
-            if(cm.getTime() > MAX){
-
-                cm.setTime(0);
-                event.getTextChannel().sendMessage(m.getAsMention()+", Tu l'as cherché hein :/ ! Tu es maintenant mute :grin:").queue();
-                event.getGuild().getController().addSingleRoleToMember(event.getMember(), main.getJda().getRoleById(main.getObs().muteRole)).queue();
-
-            } else if(cm.tooFast()){
+            if(cm.tooFast()){
 
                 event.getTextChannel().sendMessage(main.getUtils().format("%s, Parle pas si vite mec ! Avec moi : on expire, on inspire, on expire, on inspire... (%s/%s avant le mute !)", m.getAsMention(), cm.getTime(), MAX)).queue();
                 cm.setTime(cm.getTime()+1);
+            }
+
+            if(cm.getTime() >= MAX) {
+
+                cm.setTime(1);
+                event.getTextChannel().sendMessage(m.getAsMention() + ", Tu l'as cherché hein :/ ! Tu es maintenant mute :grin:").queue();
+                event.getGuild().getController().addSingleRoleToMember(event.getMember(), main.getJda().getRoleById(main.getObs().muteRole)).queue();
+
             }
 
             cm.reload();
