@@ -32,7 +32,7 @@ public class CommandCore {
 
     public CommandCore(Main main) {
         this.main = main;
-        registerCommand(new CommandGiveAway());
+        registerCommand(new CommandGiveAway(main));
         registerCommand(new BasicCommands());
         registerCommand(new CommandsModerator());
     }

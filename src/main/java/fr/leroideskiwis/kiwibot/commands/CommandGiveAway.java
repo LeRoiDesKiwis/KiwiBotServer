@@ -13,6 +13,12 @@ import java.util.*;
 
 public class CommandGiveAway {
 
+    private Main main;
+
+    public CommandGiveAway(Main main) {
+        this.main = main;
+    }
+
     @Command(name = "ginfo", description = "Avoir les infos des giveaways")
     public void gInfo(TextChannel tx) {
 
@@ -24,7 +30,7 @@ public class CommandGiveAway {
     public void onGPart(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member) {
 
         channel.sendMessage("Veuillez patienter... Recherche des participants...").queue();
-        List<Member> members = getParticipants(main, guild, jda.getRoleById(main.getConfig("concoursRole")));
+        List<Member> members = getPoints(guild);
 
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN);
 
@@ -92,45 +98,6 @@ public class CommandGiveAway {
 
     }
 
-    private List<Member> getParticipants(Main main, Guild guild, Role role) {
-        List<Member> members = new ArrayList<>();
-
-        for (Member member : guild.getMembers()) {
-
-            for (Role roleM : member.getRoles()) {
-
-                if (roleM.equals(role)) {
-
-                    Map<Member, Integer> invites = getInvites(guild);
-
-                    if (invites.containsKey(member)) {
-
-                        int uses = invites.get(member);
-
-                        try {
-
-                            members.add(member);
-
-                            for (int i = 0; i < (uses / 5); i++) {
-
-                                members.add(member);
-
-                            }
-                        } catch (Exception ignored) {
-                            continue;
-                        }
-
-                    } else members.add(member);
-
-                    break;
-                }
-
-            }
-
-        }
-
-        return members;
-    }
 
     @Deprecated
     public Map<Member, Integer> getInvites(Guild guild) {
@@ -179,6 +146,7 @@ public class CommandGiveAway {
 
         for (Invite invite : guild.getInvites().complete()) {
             Member member = guild.getMember(invite.getInviter());
+            if(member == null || !member.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))) continue;
 
             int totalUse = invitations.getOrDefault(member, 0);
             totalUse += invite.getUses();
@@ -186,25 +154,46 @@ public class CommandGiveAway {
             invitations.put(member, totalUse);
         }
 
+        for(Member m : guild.getMembers()){
+
+            if(m.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))){
+
+                if(!invitations.containsKey(m)) invitations.put(m, 1);
+
+            }
+
+        }
+
         return invitations;
     }
 
-    /**
-     * Take a winner chosen from all players who had invited others members
-     *
-     * @param guild The concerned guild
-     * @return A member taken from the list
-     */
+    public List<Member> getPoints(Guild guild) {
+
+        List<Member> memberPoints = new ArrayList<>();
+
+        for (Map.Entry<Member, Integer> entry : countUseOfInvitations(guild).entrySet()) {
+            Member member = entry.getKey();
+
+            Integer invit = entry.getValue();
+
+            int points = ((int) (1.1 * Math.log(invit) + 1));
+
+            for (int i = 0; i < points; i++) {
+
+                memberPoints.add(member);
+
+            }
+        }
+
+        return memberPoints;
+
+
+    }
+
     public Member takeWinner(@NotNull Guild guild) {
         Objects.requireNonNull(guild);
 
-        List<Member> memberPoints = new ArrayList<>();
-        countUseOfInvitations(guild).forEach((member, invit) -> {
-            int points = ((int) (1.1 * Math.log(invit) + 1));
-
-            for (int i = 0; i < points; i++)
-                memberPoints.add(member);
-        });
+        List<Member> memberPoints = getPoints(guild);
 
         int randomI = new Random().nextInt(memberPoints.size());
         return memberPoints.get(randomI);
