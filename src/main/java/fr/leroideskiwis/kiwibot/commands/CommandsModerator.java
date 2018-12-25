@@ -1,6 +1,7 @@
 package fr.leroideskiwis.kiwibot.commands;
 
 import fr.leroideskiwis.kiwibot.Main;
+import fr.leroideskiwis.kiwibot.Role;
 import fr.leroideskiwis.kiwibot.command.Command;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
@@ -12,7 +13,7 @@ import java.awt.*;
 
 public class CommandsModerator {
 
-    @Command(name="ban",description = "bannir quelqu'un",op=true)
+    @Command(name="ban",description = "bannir quelqu'un", role= Role.MODO)
     public void ban(TextChannel channel, Message msg, String[] args, Member member, Main main, Guild guild){
 
         if(msg.getMentionedMembers().isEmpty()) channel.sendMessage("Vous devez mentionner quelqu'un !").queue();

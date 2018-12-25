@@ -1,5 +1,7 @@
 package fr.leroideskiwis.kiwibot.command;
 
+import fr.leroideskiwis.kiwibot.Role;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,7 +15,7 @@ public @interface Command {
 	public String name();
 	public String description() default "aucune description";
 	public ExecutorType type() default ExecutorType.USER;
-	public boolean op() default false;
+	public Role role() default Role.MEMBER;
 	public String[] aliases() default {};
 	
 	public enum ExecutorType{

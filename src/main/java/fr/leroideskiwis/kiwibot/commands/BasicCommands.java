@@ -1,6 +1,7 @@
 package fr.leroideskiwis.kiwibot.commands;
 
 import fr.leroideskiwis.kiwibot.Main;
+import fr.leroideskiwis.kiwibot.Role;
 import fr.leroideskiwis.kiwibot.command.Command;
 import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.command.SimpleCommand;
@@ -15,7 +16,7 @@ import java.io.PrintStream;
 
 public class BasicCommands {
 
-    @Command(name="stop",type= Command.ExecutorType.ALL,op = true)
+    @Command(name="stop",type= Command.ExecutorType.ALL,role=Role.OWNER)
     public void stop(Main main, PrintStream printStream){
 
         printStream.println("Le bot s'est arrêté !");
@@ -59,7 +60,7 @@ public class BasicCommands {
 
     }
 
-    @Command(name="purge",op=true)
+    @Command(name="purge",role= Role.MODO)
     public void onPurge(String[] args, TextChannel channel, Member member){
 
         channel.getHistory().retrievePast(Integer.parseInt(args[0])).complete().forEach(m -> m.delete().complete());
@@ -68,36 +69,46 @@ public class BasicCommands {
 
     }
 
-    @Command(name="help")
-    public void onHelp(Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
+    //TODO ;help access pour les commandes accessibles par leurs rôles, ;command member et ;command na
 
-        EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN);
-        EmbedBuilder builderO = new EmbedBuilder().setColor(Color.RED);
+    @Command(name="help")
+    public void onHelp(CommandCore commandCore, Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
+
+        EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN);
+        EmbedBuilder builderA = new EmbedBuilder().setColor(Color.ORANGE);
+        EmbedBuilder builderNA = new EmbedBuilder().setColor(Color.RED);
 
         int count = 0;
         int countO = 0;
+        int countNA = 0;
 
         for(SimpleCommand command : core.getCommands()){
 
-            if(!command.needOp()){
+            if(command.needRole(Role.MEMBER)){
 
                     builder.addField(command.getName(), command.getDescription(), false);
 
                     count++;
 
                 continue;
-            } else {
-                builderO.addField(command.getName(), command.getDescription(), false);
+            } else if(commandCore.checkPerm(command.getNeededRole(), member, guild)){
+                builderA.addField(command.getName()+" (réservé au rôle "+command.getNeededRole().toString().toLowerCase()+")", command.getDescription(), false);
                 countO++;
+            } else {
+                builderNA.addField(command.getName()+" (réservé au rôle "+command.getNeededRole().toString().toLowerCase()+")", command.getDescription(), false);
+                countNA++;
             }
 
         }
 
-        builder.setTitle(count+" commandes ; préfixe : "+main.getPrefixe());
-        builderO.setTitle(countO+" commandes reservé au propriétaire du serveur");
+        builder.setTitle(count+" commandes accessibles à tous; préfixe : "+main.getPrefixe());
+        builderA.setTitle(countO+" commandes accessibles à vos rôles.");
+        builderNA.setTitle(countNA+" commandes non-accessibles par vous.");
 
         channel.sendMessage(builder.build()).queue();
-        if(member.equals(guild.getOwner())) channel.sendMessage(builderO.build()).queue();
+        if(countO != 0) channel.sendMessage(builderA.build()).queue();
+        if(countNA != 0) channel.sendMessage(builderNA.build()).queue();
+
 
     }
 

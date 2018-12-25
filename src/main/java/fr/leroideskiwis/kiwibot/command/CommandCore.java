@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import fr.leroideskiwis.kiwibot.Role;
 
 import java.awt.*;
 import java.io.PrintStream;
@@ -45,7 +46,7 @@ public class CommandCore {
 
                 Command cmdA = m.getAnnotation(Command.class);
 
-                commands.add(new SimpleCommand(cmdA.op(), cmdA.name(), cmdA.description(), cmdA.type(), o, m));
+                commands.add(new SimpleCommand(cmdA.role(), cmdA.name(), cmdA.description(), cmdA.type(), o, m));
 
                 main.getUtils().debug("la commande "+cmdA.name()+" a été enregistrée avec succès !");
 
@@ -97,8 +98,13 @@ public class CommandCore {
 
     }
 
-    public void commandUser(String s, MessageReceivedEvent e){
+    public boolean checkPerm(Role role, Member member, Guild g){
 
+        return member.equals(g.getOwner()) || role == Role.MEMBER || member.getRoles().contains(g.getRoleById(role.getId()));
+
+    }
+
+    public void commandUser(String s, MessageReceivedEvent e){
 
         List<SimpleCommand> available = new ArrayList<>();
 
@@ -112,8 +118,9 @@ public class CommandCore {
                         continue;
                     if (cmd.equalsIgnoreCase(checkAliase(cmd, simpleCommand.getName()))) {
 
-                        if(simpleCommand.needOp() && !e.getMember().equals(e.getGuild().getOwner())) continue;
-                        available.add(simpleCommand);
+
+                            available.add(simpleCommand);
+
 
                     }
 
@@ -127,7 +134,6 @@ public class CommandCore {
                     StringBuilder builder = new StringBuilder();
                     for(int i = 0; i < available.size(); i++){
 
-
                         builder.append(available.get(i).getName());
                         if(i != available.size()-1) builder.append(", ");
 
@@ -136,7 +142,12 @@ public class CommandCore {
 
                 } else {
 
-                    execute(Command.ExecutorType.USER, available.get(0), e.getMessage().getContentDisplay(), e);
+                    if(checkPerm(available.get(0).getNeededRole(), e.getMember(), e.getGuild())) {
+                        execute(Command.ExecutorType.USER, available.get(0), e.getMessage().getContentDisplay(), e);
+                    }else {
+                        throw new KiwiException(main.getUtils().format("Vous devez posséder le rôle %s pour exécuter cette commande !", available.get(0).getNeededRole()));
+
+                    }
 
                 }
 
@@ -145,9 +156,11 @@ public class CommandCore {
 
         }catch(Exception ex){
 
+            if(ex.getClass() != KiwiException.class) ex.printStackTrace();
+
             EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Erreur !").setDescription(ex.getMessage());
             e.getTextChannel().sendMessage(builder.build()).queue();
-            ex.printStackTrace();
+
 
 
         }
@@ -187,6 +200,7 @@ public class CommandCore {
                 else if (parameters[i].getType() == String[].class) objects[i] = args;
                 else if (parameters[i].getType() == CommandCore.class) objects[i] = this;
                 else if (parameters[i].getType() == JDA.class) objects[i] = main.getJda();
+                else if (parameters[i].getType() == CommandCore.class) objects[i]= this;
                 else if (parameters[i].getType() == PrintStream.class) {
 
                     if(type == Command.ExecutorType.CONSOLE){
@@ -208,7 +222,7 @@ public class CommandCore {
 
         }
 
-        if(type == Command.ExecutorType.CONSOLE || (!simpleCommand.needOp() || e.getAuthor().equals(e.getGuild().getOwner().getUser()))) {
+
 
             Thread thread = new Thread(() -> {
 
@@ -226,7 +240,8 @@ public class CommandCore {
             thread.start();
             main.getUtils().debug("Un nouvelle thread commande a été crée par %s : %s ", e.getMember().getUser().getName(), thread.getName());
         }
-        else throw new KiwiException("Vous devez être le propriétaire du serveur pour exécuter cette commande !");
+
     }
 
-}
+
+

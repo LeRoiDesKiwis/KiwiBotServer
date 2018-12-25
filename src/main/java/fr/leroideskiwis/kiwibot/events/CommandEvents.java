@@ -32,6 +32,8 @@ public class CommandEvents extends ListenerAdapter {
 
     }
 
+    //TODO pas besoin du prefixe si c'est sur le channel commands-bot
+
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 

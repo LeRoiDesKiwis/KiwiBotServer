@@ -1,6 +1,7 @@
 package fr.leroideskiwis.kiwibot.commands;
 
 import fr.leroideskiwis.kiwibot.Main;
+import fr.leroideskiwis.kiwibot.Role;
 import fr.leroideskiwis.kiwibot.command.Command;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
@@ -146,7 +147,8 @@ public class CommandGiveAway {
 
         for (Invite invite : guild.getInvites().complete()) {
             Member member = guild.getMember(invite.getInviter());
-            if(member == null || !member.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))) continue;
+            if (member == null || !member.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole"))))
+                continue;
 
             int totalUse = invitations.getOrDefault(member, 1);
             totalUse += invite.getUses();
@@ -154,11 +156,11 @@ public class CommandGiveAway {
             invitations.put(member, totalUse);
         }
 
-        for(Member m : guild.getMembers()){
+        for (Member m : guild.getMembers()) {
 
-            if(m.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))){
+            if (m.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))) {
 
-                if(!invitations.containsKey(m)) invitations.put(m, 1);
+                if (!invitations.containsKey(m)) invitations.put(m, 1);
 
             }
 
@@ -199,7 +201,7 @@ public class CommandGiveAway {
         return memberPoints.get(randomI);
     }
 
-    @Command(name = "ggo", description = "Tirer au sort ou voir le nombre de participants", op = true)
+    @Command(name = "ggo", description = "Tirer au sort ou voir le nombre de participants", role = Role.ADMIN)
     public void onGo(JDA jda, String[] args, Guild guild, TextChannel channel, Main main, Member member) {
 
         if (args.length != 0 && args[0].equalsIgnoreCase("confirm")) {
@@ -220,8 +222,8 @@ public class CommandGiveAway {
             channel.sendMessage("êtes-vous sûr de vouloir procéder au tirage au sort ? Faites ;ggo confirm si vous êtes sûr.").queue();
     }
 
-    @Command(name="gunregister",description = "unregister des gens",op=true)
-    public void unregister(String[] args, Main main, TextChannel channel, JDA jda, Message msg, Member member, Guild guild){
+    @Command(name = "gunregister", description = "unregister des gens", role= Role.MODO)
+    public void unregister(String[] args, Main main, TextChannel channel, JDA jda, Message msg, Member member, Guild guild) {
 
         if (msg != null && !msg.getMentionedMembers().isEmpty()) {
 
@@ -229,12 +231,14 @@ public class CommandGiveAway {
 
                 unregister(args, main, channel, jda, null, m, guild);
 
+            }
+
+            if (member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
+                channel.sendMessage(member.getUser().getName() + " à été unregister !").queue();
+                guild.getController().removeSingleRoleFromMember(member, jda.getRoleById(main.getConfig("concoursRole"))).queue();
+            } else channel.sendMessage(member.getUser().getName() + " n'est pas enregistrée !").queue();
+
         }
 
-        if(!member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
-            channel.sendMessage(member.getUser().getName() + " à été unregister !").queue();
-        } else channel.sendMessage(member.getUser().getName()+" n'est pas enregistrée !").queue();
-
     }
-
 }
