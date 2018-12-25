@@ -148,7 +148,7 @@ public class CommandGiveAway {
             Member member = guild.getMember(invite.getInviter());
             if(member == null || !member.getRoles().contains(main.getJda().getRoleById(main.getConfig("concoursRole")))) continue;
 
-            int totalUse = invitations.getOrDefault(member, 0);
+            int totalUse = invitations.getOrDefault(member, 1);
             totalUse += invite.getUses();
 
             invitations.put(member, totalUse);
@@ -215,10 +215,26 @@ public class CommandGiveAway {
             Member winner = takeWinner(guild);
             channel.sendMessage(winner.getUser().getName() + " a gagné ! Bravo à lui/elle !").queue();
 
-            for (Member member1 : usersInvitation.keySet())
-                guild.getController().removeSingleRoleFromMember(member1, jda.getRoleById(main.getConfig("concoursRole"))).queue();
+
         } else
             channel.sendMessage("êtes-vous sûr de vouloir procéder au tirage au sort ? Faites ;ggo confirm si vous êtes sûr.").queue();
+    }
+
+    @Command(name="gunregister",description = "unregister des gens",op=true)
+    public void unregister(String[] args, Main main, TextChannel channel, JDA jda, Message msg, Member member, Guild guild){
+
+        if (msg != null && !msg.getMentionedMembers().isEmpty()) {
+
+            for (Member m : (args[0].equalsIgnoreCase("*") ? guild.getMembers() : msg.getMentionedMembers())) {
+
+                unregister(args, main, channel, jda, null, m, guild);
+
+        }
+
+        if(!member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
+            channel.sendMessage(member.getUser().getName() + " à été unregister !").queue();
+        } else channel.sendMessage(member.getUser().getName()+" n'est pas enregistrée !").queue();
+
     }
 
 }

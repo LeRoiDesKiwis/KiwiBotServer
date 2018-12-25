@@ -2,7 +2,7 @@ package fr.leroideskiwis.kiwibot;
 
 import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.events.CommandEvents;
-import fr.leroideskiwis.kiwibot.events.NoRaid;
+import fr.leroideskiwis.kiwibot.events.mutesEvent;
 import fr.leroideskiwis.kiwibot.events.OtherEvents;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.AccountType;
@@ -28,9 +28,9 @@ public class Main extends ListenerAdapter implements Runnable {
     private boolean running = true;
     private Scanner scan = new Scanner(System.in);
     private boolean debug;
-    private NoRaid noraid;
+    private mutesEvent noraid;
 
-    public NoRaid getNoraid() {
+    public mutesEvent getNoraid() {
         return noraid;
     }
 
@@ -75,7 +75,7 @@ public class Main extends ListenerAdapter implements Runnable {
         commandCore = new CommandCore(this);
         jda = new JDABuilder(AccountType.BOT).setToken(readToken()).build();
         jda.awaitReady();
-        noraid = new NoRaid(this);
+        noraid = new mutesEvent(this);
         jda.addEventListener(new CommandEvents(this));
         if (!isDebug()) jda.addEventListener(this);
         if (!isDebug()) jda.addEventListener(new OtherEvents(this));

@@ -18,3 +18,5 @@ gradle/
 /token
 /*.iml
 /*.bat
+/out/
+/META-INF/

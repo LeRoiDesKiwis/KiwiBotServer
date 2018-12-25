@@ -2,20 +2,22 @@ package fr.leroideskiwis.kiwibot.events;
 
 import fr.leroideskiwis.kiwibot.CustomMember;
 import fr.leroideskiwis.kiwibot.Main;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class NoRaid extends ListenerAdapter {
+public class mutesEvent extends ListenerAdapter {
 
     private final Main main;
     private Map<CustomMember, Long> howLong = new HashMap<>();
 
-    public NoRaid(Main main) {
+    public mutesEvent(Main main) {
 
         this.main = main;
 
@@ -46,6 +48,16 @@ public class NoRaid extends ListenerAdapter {
         if(event.getAuthor().equals(main.getJda().getSelfUser())) return;
 
         Member m = event.getMember();
+
+        if(event.getMessage().getContentDisplay().contains("discord") && event.getMessage().getContentDisplay().contains("http")){
+            event.getMessage().delete().queue();
+            EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED);
+            builder.setTitle("Pub détecté !");
+            builder.setDescription("Nous suspectons le message que vous venez d'envoyer de contenir une pub Discord, nous l'avons donc supprimé. Merci de contacter un administrateur si vous pensez qu'il y a une erreur.");
+
+            event.getTextChannel().sendMessage(builder.build()).queue();
+        }
+
         if(getCustomMember(m) == null) howLong.put(new CustomMember(m), System.currentTimeMillis());
         else {
 
