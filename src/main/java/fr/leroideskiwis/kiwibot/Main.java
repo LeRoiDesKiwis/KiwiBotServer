@@ -4,6 +4,7 @@ import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.events.CommandEvents;
 import fr.leroideskiwis.kiwibot.events.mutesEvent;
 import fr.leroideskiwis.kiwibot.events.OtherEvents;
+import fr.leroideskiwis.kiwibot.noraid.RaidProtection;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import fr.leroideskiwis.kiwibot.window.LauncherWindow;
 import net.dv8tion.jda.core.AccountType;
@@ -30,7 +31,8 @@ public class Main extends ListenerAdapter implements Runnable {
     private Scanner scan = new Scanner(System.in);
     private boolean debug;
     private mutesEvent noraid;
-    private boolean raidProtect;
+    private RaidProtection raidProtection;
+
 
     public mutesEvent getNoraid() {
         return noraid;
@@ -77,6 +79,8 @@ public class Main extends ListenerAdapter implements Runnable {
         commandCore = new CommandCore(this);
         jda = new JDABuilder(AccountType.BOT).setToken(readToken()).build();
         jda.awaitReady();
+        this.raidProtection = new RaidProtection();
+
         noraid = new mutesEvent(this);
         jda.addEventListener(new CommandEvents(this));
         if (!isDebug()) jda.addEventListener(this);
@@ -137,7 +141,8 @@ public class Main extends ListenerAdapter implements Runnable {
         System.exit(1);
 
     }
-    public String getConfig(String path){
+
+    public String getConfig(String path) {
 
         try {
 
@@ -148,14 +153,14 @@ public class Main extends ListenerAdapter implements Runnable {
 
             String line = br.readLine();
 
-            while(line != null){
+            while (line != null) {
 
-                if(line.startsWith(path+": ")) return line.replaceFirst(path+": ", "");
+                if (line.startsWith(path + ": ")) return line.replaceFirst(path + ": ", "");
 
                 line = br.readLine();
             }
 
-        }catch(Throwable e){
+        } catch (Throwable e) {
             e.printStackTrace();
 
         }
@@ -184,12 +189,9 @@ public class Main extends ListenerAdapter implements Runnable {
 
     }
 
-    public boolean isRaidProtect() {
-
-        return raidProtect;
-    }
-
-    public void setRaidProtect(boolean raidProtect) {
-        this.raidProtect = raidProtect;
+    public RaidProtection getRaidProtection() {
+        return raidProtection;
     }
 }
+
+

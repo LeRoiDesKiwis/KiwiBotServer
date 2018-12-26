@@ -1,6 +1,8 @@
 package fr.leroideskiwis.kiwibot.utils;
 
+import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.math.BigDecimal;
@@ -21,6 +23,18 @@ public class Utils {
 
     }
 
+    public Member getMemberByName(Guild guild, String s){
+
+        for(Member m : guild.getMembers()){
+
+            if(m.getUser().getName().equals(s)) return m;
+
+        }
+
+        return null;
+
+    }
+
     public String format(String s, Object... objs){
 
         for(Object o : objs){
@@ -32,12 +46,16 @@ public class Utils {
 
     }
 
-    public void sendPrivateMessage(Member m, String s){
-        sendPrivateMessage(null, m, s);
+    public void sendPrivateMessage(Member m, String s, int disapear){
+        sendPrivateMessage(null, m, s, disapear);
 
     }
 
-    public void sendPrivateMessage(TextChannel tx, Member member, String s){
+    public String getName(Member m){
+        return m.getNickname() == null ? m.getUser().getName() : m.getNickname();
+    }
+
+    public void sendPrivateMessage(TextChannel tx, Member member, String s, double disapear){
 
         new Thread(() -> {
 
@@ -49,7 +67,19 @@ public class Utils {
             } catch (Exception e) {
 
                 if (tx != null)
-                    tx.sendMessage(member.getAsMention() + ", vous avez désactivé vos messages privés. ").queue();
+                    tx.sendMessage(member.getAsMention() + ", vous avez désactivé vos messages privés. ").queue(msg -> {
+
+                        try {
+                            if(disapear > 0) {
+                                Thread.sleep((int)disapear*1000);
+                                msg.delete().queue();
+                            }
+
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+
+                    });
 
             }
         }, "thread-send-mp-"+new Random().nextInt(9999)).start();

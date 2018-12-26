@@ -64,7 +64,7 @@ public class CommandCore {
 
             for(SimpleCommand simpleCommand : commands){
 
-                if(simpleCommand.getName().equalsIgnoreCase(cmd) && (simpleCommand.getExecutorType() == Command.ExecutorType.CONSOLE || simpleCommand.getExecutorType() == Command.ExecutorType.ALL)) execute(Command.ExecutorType.CONSOLE, simpleCommand, cmd, null);
+                if(simpleCommand.getName().equalsIgnoreCase(cmd) && (simpleCommand.getExecutorType() == Command.ExecutorType.CONSOLE || simpleCommand.getExecutorType() == Command.ExecutorType.ALL)) execute(null, Command.ExecutorType.CONSOLE, simpleCommand, cmd, null);
 
             }
 
@@ -100,7 +100,7 @@ public class CommandCore {
 
     public boolean checkPerm(Role role, Member member, Guild g){
 
-        return member.equals(g.getOwner()) || role == Role.MEMBER || member.getRoles().contains(g.getRoleById(role.getId()));
+        return member.getUser().equals(main.getJda().getSelfUser()) || member.equals(g.getOwner()) || role == Role.MEMBER || member.getRoles().contains(g.getRoleById(role.getId()));
 
     }
 
@@ -144,14 +144,14 @@ public class CommandCore {
                         if(i != available.size()-1) builder.append(", ");
 
                     }
-                    e.getTextChannel().sendMessage("Availables commands : "+builder.toString()).queue();
+                    channel.sendMessage("Availables commands : "+builder.toString()).queue();
 
                 } else {
 
                     if(checkPerm(available.get(0).getNeededRole(), m, guild)) {
 
-                        if(e != null) execute(Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler((Channel)e.getChannel(), e.getMessage(), m, e.getAuthor(), guild, channel));
-                        else execute(Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler(null, null, m, null, guild, channel));
+                        if(e != null) execute(e, Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler((Channel)e.getChannel(), e.getMessage(), m, e.getAuthor(), guild, channel));
+                        else execute(null, Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler(null, null, m, null, guild, channel));
                     }else {
                         throw new KiwiException(main.getUtils().format("Vous devez posséder le rôle %s pour exécuter cette commande !", available.get(0).getNeededRole()));
 
@@ -186,7 +186,7 @@ public class CommandCore {
 
     }
 
-    private void execute(Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageCommandHandler e) throws KiwiException {
+    private void execute(MessageReceivedEvent ev, Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageCommandHandler e) throws KiwiException {
 
         Parameter[] parameters = simpleCommand.getMethod().getParameters();
         Object[] objects = new Object[parameters.length];
@@ -197,15 +197,15 @@ public class CommandCore {
 
             try {
 
-                if (parameters[i].getType() == MessageReceivedEvent.class) objects[i] = e;
-                else if (parameters[i].getType() == Channel.class) objects[i] = e.getChannel() == null ? null :e.getChannel();
-                else if (parameters[i].getType() == Message.class) objects[i] = e.getMessage() == null ? null : e.getMessage();
-                else if (parameters[i].getType() == Member.class) objects[i] = e.getMember() == null ? null : e.getMember();
-                else if (parameters[i].getType() == User.class) objects[i] = e.getUser() == null ? null : e.getUser();
-                else if (parameters[i].getType() == Guild.class) objects[i] = e.getGuild() == null ? null : e.getGuild();
+                if (parameters[i].getType() == MessageReceivedEvent.class) objects[i] = ev;
+                else if (parameters[i].getType() == Channel.class) objects[i] = e.getChannel();
+                else if (parameters[i].getType() == Message.class) objects[i] = e.getMessage();
+                else if (parameters[i].getType() == Member.class) objects[i] = e.getMember();
+                else if (parameters[i].getType() == User.class) objects[i] = e.getUser();
+                else if (parameters[i].getType() == Guild.class) objects[i] = e.getGuild();
                 else if (parameters[i].getType() == Main.class) objects[i] = main;
                 else if (parameters[i].getType() == Utils.class) objects[i] = main.getUtils();
-                else if (parameters[i].getType() == TextChannel.class) objects[i] = e.getTextChannel() == null ? null : e.getTextChannel();
+                else if (parameters[i].getType() == TextChannel.class) objects[i] = e.getTextChannel();
                 else if (parameters[i].getType() == String[].class) objects[i] = args;
                 else if (parameters[i].getType() == CommandCore.class) objects[i] = this;
                 else if (parameters[i].getType() == JDA.class) objects[i] = main.getJda();
