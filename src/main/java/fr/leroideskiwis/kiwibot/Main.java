@@ -30,6 +30,7 @@ public class Main extends ListenerAdapter implements Runnable {
     private Scanner scan = new Scanner(System.in);
     private boolean debug;
     private mutesEvent noraid;
+    private boolean raidProtect;
 
     public mutesEvent getNoraid() {
         return noraid;
@@ -183,4 +184,12 @@ public class Main extends ListenerAdapter implements Runnable {
 
     }
 
+    public boolean isRaidProtect() {
+
+        return raidProtect;
+    }
+
+    public void setRaidProtect(boolean raidProtect) {
+        this.raidProtect = raidProtect;
+    }
 }

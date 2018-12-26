@@ -78,7 +78,7 @@ public class BasicCommands {
         Member target = msg.getMentionedMembers().get(0);
         String str = "";
 
-        for(int i = 1; i < args.length; i++){
+        for(int i = target.getNickname() == null ? target.getUser().getName().split(" ").length : target.getNickname().split(" ").length; i < args.length; i++){
 
             str+=args[i];
             if(i != args.length-1) str+=" ";

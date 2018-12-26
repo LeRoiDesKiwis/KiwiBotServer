@@ -33,7 +33,7 @@ public class CommandEvents extends ListenerAdapter {
     }
 
     private boolean checkTextChannel(TextChannel tx){
-        return tx.getId().equalsIgnoreCase(main.getConfig("botTX"));
+        return tx.getId().equalsIgnoreCase(main.getConfig("botTX")) || tx.getId().equalsIgnoreCase(main.getConfig("debugChannel"));
     }
 
 

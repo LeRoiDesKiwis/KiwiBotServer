@@ -30,29 +30,20 @@ public class OtherEvents extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
 
+        if(main.isRaidProtect()) {
+
+            event.getMember().getUser().openPrivateChannel().complete().sendMessage("Désolé, le serveur est actuellement verrouillé. Revenez plus tard :D").queue();
+            event.getGuild().getController().kick(event.getMember(), "anti-raid protect").queue();
+
+        }
+
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN).setTitle("Bienvenue "+event.getMember().getUser().getName()+" !");
         builder.setDescription("Passe du bon temps sur notre serveur ! \uD83D\uDE01");
         main.addRoleMember(event.getGuild(), event.getMember());
 
         main.getJda().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(builder.build()).queue();
 
-        new Thread(() -> {
-
-            try {
-
-                PrivateChannel channel = event.getMember().getUser().openPrivateChannel().complete();
-                channel.sendMessage("N'oublie pas de participer au concours (si il y en a un en ce moment) en faisait ;gr dans #commande-bots !").queue();
-
-            }catch(Exception e){
-
-                event.getGuild().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(event.getMember().getAsMention()+", impossible de vous envoyer de mp :/").queue();
-
-            }
-
-
-        },"join-"+event.getMember().getUser().getId()).start();
-
-
+        main.getUtils().sendPrivateMessage(main.getJda().getTextChannelById(main.getConfig("welcomeTX")), event.getMember(), "N'oublie pas de participer au concours (si il y en a un en ce moment) en faisait ;gr dans #commande-bots !");
     }
 
     @Override

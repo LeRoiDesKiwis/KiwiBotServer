@@ -1,10 +1,14 @@
 package fr.leroideskiwis.kiwibot.utils;
 
+import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.TextChannel;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 public class Utils {
 
@@ -28,6 +32,29 @@ public class Utils {
 
     }
 
+    public void sendPrivateMessage(Member m, String s){
+        sendPrivateMessage(null, m, s);
+
+    }
+
+    public void sendPrivateMessage(TextChannel tx, Member member, String s){
+
+        new Thread(() -> {
+
+            try {
+
+                member.getUser().openPrivateChannel().complete().sendMessage(s).complete();
+
+
+            } catch (Exception e) {
+
+                if (tx != null)
+                    tx.sendMessage(member.getAsMention() + ", vous avez désactivé vos messages privés. ").queue();
+
+            }
+        }, "thread-send-mp-"+new Random().nextInt(9999)).start();
+
+    }
 
     public double round(double d, int round){
 

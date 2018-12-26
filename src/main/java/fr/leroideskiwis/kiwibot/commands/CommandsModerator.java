@@ -13,6 +13,15 @@ import java.awt.*;
 
 public class CommandsModerator {
 
+    @Command(name="lockdown",role=Role.ADMIN)
+    public void lockDown(Main main, TextChannel channel){
+
+         main.setRaidProtect(!main.isRaidProtect());
+
+         channel.sendMessage("Le serveur est désormais "+(main.isRaidProtect() ? "lock" : "unlock")+" !").queue();
+
+    }
+
     @Command(name="ban",description = "bannir quelqu'un", role= Role.MODO)
     public void ban(TextChannel channel, Message msg, String[] args, Member member, Main main, Guild guild){
 
