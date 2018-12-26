@@ -9,8 +9,11 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
+import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
+import javax.activation.CommandMap;
 import java.awt.*;
 import java.io.PrintStream;
 
@@ -69,47 +72,126 @@ public class BasicCommands {
 
     }
 
-    //TODO ;help access pour les commandes accessibles par leurs rôles, ;command member et ;command na
+    @Command(name="forcecommand",description = "forcer quelqu'un à executer une commande",role=Role.ADMIN)
+    public void forceCommand(Guild guild, TextChannel channel, Main main, Message msg, CommandCore commandCore, String[] args){
 
-    @Command(name="help")
-    public void onHelp(CommandCore commandCore, Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
+        Member target = msg.getMentionedMembers().get(0);
+        String str = "";
 
-        EmbedBuilder builder = new EmbedBuilder().setColor(Color.GREEN);
-        EmbedBuilder builderA = new EmbedBuilder().setColor(Color.ORANGE);
-        EmbedBuilder builderNA = new EmbedBuilder().setColor(Color.RED);
+        for(int i = 1; i < args.length; i++){
 
-        int count = 0;
-        int countO = 0;
-        int countNA = 0;
-
-        for(SimpleCommand command : core.getCommands()){
-
-            if(command.needRole(Role.MEMBER)){
-
-                    builder.addField(command.getName(), command.getDescription(), false);
-
-                    count++;
-
-                continue;
-            } else if(commandCore.checkPerm(command.getNeededRole(), member, guild)){
-                builderA.addField(command.getName()+" (réservé au rôle "+command.getNeededRole().toString().toLowerCase()+")", command.getDescription(), false);
-                countO++;
-            } else {
-                builderNA.addField(command.getName()+" (réservé au rôle "+command.getNeededRole().toString().toLowerCase()+")", command.getDescription(), false);
-                countNA++;
-            }
+            str+=args[i];
 
         }
 
-        builder.setTitle(count+" commandes accessibles à tous; préfixe : "+main.getPrefixe());
-        builderA.setTitle(countO+" commandes accessibles à vos rôles.");
-        builderNA.setTitle(countNA+" commandes non-accessibles par vous.");
+        commandCore.commandUser((str.startsWith(main.getPrefixe()) ? str.replaceFirst(main.getPrefixe(), "") : str), channel, target, guild);
+
+    }
+
+    //TODO faire des pages pour le ;help (genre ;help MEMBER 1 etc)
+
+    @Command(name="help")
+    public void onHelp(String[] args, CommandCore commandCore, Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
+        HelpType helpType;
+
+        try {
+            helpType = HelpType.valueOf(args[0].toUpperCase());
+        }catch(Exception e) {
+
+            EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED);
+            builder.setTitle("Vous devez mettre un argument parmis les propositions suivantes : ");
+
+            for(HelpType ht : HelpType.values()){
+
+                builder.addField(ht.toString().toLowerCase(), ht.getMessage(), false);
+
+            }
+
+            channel.sendMessage(builder.build()).queue();
+
+            return;
+
+        }
+
+        EmbedBuilder builder = new EmbedBuilder();
+        builder.setTitle(helpType.getMessage());
+
+        switch(helpType){
+
+            case ACCESS:
+                builder.setColor(Color.ORANGE);
+                break;
+
+            case NO_ACCESS:
+                builder.setColor(Color.RED);
+                break;
+
+            case MEMBER:
+                builder.setColor(Color.GREEN);
+                break;
+
+        }
+
+        int count = 0;
+
+        for(SimpleCommand command : core.getCommands()){
+
+            switch(helpType){
+
+                case MEMBER:
+
+                    if(command.needRole(Role.MEMBER)) {
+                        builder.addField(command.getName(), command.getDescription(), false);
+
+                        count++;
+                    }
+
+                    break;
+
+                case ACCESS:
+                    if(!command.needRole(Role.MEMBER) && commandCore.checkPerm(command.getNeededRole(), member, guild)) {
+                        builder.addField(command.getName() + " (réservé au rôle " + command.getNeededRole().toString().toLowerCase() + ")", command.getDescription(), false);
+                        count++;
+                    }
+                    break;
+
+                case NO_ACCESS:
+
+                    if(!commandCore.checkPerm(command.getNeededRole(), member, guild)) {
+
+                        builder.addField(command.getName() + " (réservé au rôle " + command.getNeededRole().toString().toLowerCase() + ")", command.getDescription(), false);
+                        count++;
+                    }
+
+                    break;
+
+            }
+
+
+        }
+
+        builder.setTitle(count+" "+helpType.getMessage());
 
         channel.sendMessage(builder.build()).queue();
-        if(countO != 0) channel.sendMessage(builderA.build()).queue();
-        if(countNA != 0) channel.sendMessage(builderNA.build()).queue();
 
 
+    }
+
+    private enum HelpType{
+
+        MEMBER("à tout le monde"), ACCESS("aux rôles spéciaux que vous possédez"), NO_ACCESS("aux rôles que vous ne possédez pas");
+
+        private String message;
+
+        HelpType(String msg){
+            this.message = "Commandes accessibles ";
+            this.message += msg;
+        }
+
+        public String getMessage() {
+
+            return message;
+        }
     }
 
 }

@@ -32,18 +32,22 @@ public class CommandEvents extends ListenerAdapter {
 
     }
 
-    //TODO pas besoin du prefixe si c'est sur le channel commands-bot
+    private boolean checkTextChannel(TextChannel tx){
+        return tx.getId().equalsIgnoreCase(main.getConfig("botTX"));
+    }
+
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
 
         String msg = event.getMessage().getContentDisplay();
+        if(event.getAuthor().equals(main.getJda().getSelfUser())) return;
         if(event.getChannel() instanceof PrivateChannel) return;
         if(main.isDebug() && !event.getTextChannel().getId().equalsIgnoreCase(main.getConfig("debugChannel"))) return;
 
-        if(msg.startsWith(main.getPrefixe())) {
+        if(checkTextChannel(event.getTextChannel()) || msg.startsWith(main.getPrefixe())) {
 
-           main.getCommandCore().commandUser(msg.replaceFirst(main.getPrefixe(), ""), event);
+           main.getCommandCore().commandUser(msg.startsWith(main.getPrefixe()) ? msg.replaceFirst(main.getPrefixe(), "") : msg, event, event.getTextChannel(), event.getMember(), event.getGuild());
 
         }
 

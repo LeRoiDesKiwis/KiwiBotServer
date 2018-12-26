@@ -225,20 +225,22 @@ public class CommandGiveAway {
     @Command(name = "gunregister", description = "unregister des gens", role= Role.MODO)
     public void unregister(String[] args, Main main, TextChannel channel, JDA jda, Message msg, Member member, Guild guild) {
 
-        if (msg != null && !msg.getMentionedMembers().isEmpty()) {
+        if ((msg != null && !msg.getMentionedMembers().isEmpty()) || (args != null && args.length != 0 && args[0].equalsIgnoreCase("*"))) {
 
-            for (Member m : (args[0].equalsIgnoreCase("*") ? guild.getMembers() : msg.getMentionedMembers())) {
+            for (Member m : (args[0].equalsIgnoreCase("*") ? countUseOfInvitations(guild).keySet() : msg.getMentionedMembers())) {
 
-                unregister(args, main, channel, jda, null, m, guild);
+                unregister(null, main, channel, jda, null, m, guild);
 
             }
 
-            if (member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
-                channel.sendMessage(member.getUser().getName() + " à été unregister !").queue();
-                guild.getController().removeSingleRoleFromMember(member, jda.getRoleById(main.getConfig("concoursRole"))).queue();
-            } else channel.sendMessage(member.getUser().getName() + " n'est pas enregistrée !").queue();
+            return;
 
         }
+
+        if (member.getRoles().contains(jda.getRoleById(main.getConfig("concoursRole")))) {
+            channel.sendMessage(member.getUser().getName() + " à été unregister !").queue();
+            guild.getController().removeSingleRoleFromMember(member, jda.getRoleById(main.getConfig("concoursRole"))).queue();
+        } else channel.sendMessage(member.getUser().getName() + " n'est pas enregistrée !").queue();
 
     }
 }

@@ -138,7 +138,7 @@ public class Main extends ListenerAdapter implements Runnable {
 
         try {
 
-            File file = new File("./config");
+            File file = new File("config");
             if (!file.exists()) file.createNewFile();
 
             BufferedReader br = new BufferedReader(new FileReader(file));
@@ -165,7 +165,7 @@ public class Main extends ListenerAdapter implements Runnable {
 
         try {
 
-            File file = new File("./token");
+            File file = new File("token");
             if (!file.exists()) file.createNewFile();
 
             BufferedReader br = new BufferedReader(new FileReader(file));

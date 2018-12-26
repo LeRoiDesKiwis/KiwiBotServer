@@ -44,11 +44,11 @@ public class CommandCore {
 
             if(m.isAnnotationPresent(Command.class)){
 
-                Command cmdA = m.getAnnotation(Command.class);
+                Command cmd = m.getAnnotation(Command.class);
 
-                commands.add(new SimpleCommand(cmdA.role(), cmdA.name(), cmdA.description(), cmdA.type(), o, m));
+                commands.add(new SimpleCommand(cmd.role(), cmd.name(), cmd.description(), cmd.type(), o, m));
 
-                main.getUtils().debug("la commande "+cmdA.name()+" a été enregistrée avec succès !");
+                main.getUtils().debug("la commande "+cmd.name()+" a été enregistrée avec succès !");
 
             } else System.err.println("La méthode "+m.getName()+" n'est pas annoté de Command");
 
@@ -104,7 +104,13 @@ public class CommandCore {
 
     }
 
-    public void commandUser(String s, MessageReceivedEvent e){
+    public void commandUser(String s, TextChannel channel, Member m, Guild guild){
+
+        commandUser(s, null, channel, m, guild);
+
+    }
+
+    public void commandUser(String s, MessageReceivedEvent e, TextChannel channel, Member m, Guild guild){
 
         List<SimpleCommand> available = new ArrayList<>();
 
@@ -142,8 +148,10 @@ public class CommandCore {
 
                 } else {
 
-                    if(checkPerm(available.get(0).getNeededRole(), e.getMember(), e.getGuild())) {
-                        execute(Command.ExecutorType.USER, available.get(0), e.getMessage().getContentDisplay(), e);
+                    if(checkPerm(available.get(0).getNeededRole(), m, guild)) {
+
+                        if(e != null) execute(Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler((Channel)e.getChannel(), e.getMessage(), m, e.getAuthor(), guild, channel));
+                        else execute(Command.ExecutorType.USER, available.get(0), s, new MessageCommandHandler(null, null, m, null, guild, channel));
                     }else {
                         throw new KiwiException(main.getUtils().format("Vous devez posséder le rôle %s pour exécuter cette commande !", available.get(0).getNeededRole()));
 
@@ -159,7 +167,7 @@ public class CommandCore {
             if(ex.getClass() != KiwiException.class) ex.printStackTrace();
 
             EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED).setTitle("Erreur !").setDescription(ex.getMessage());
-            e.getTextChannel().sendMessage(builder.build()).queue();
+            channel.sendMessage(builder.build()).queue();
 
 
 
@@ -178,25 +186,26 @@ public class CommandCore {
 
     }
 
-    private void execute(Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageReceivedEvent e) throws KiwiException {
+    private void execute(Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageCommandHandler e) throws KiwiException {
 
         Parameter[] parameters = simpleCommand.getMethod().getParameters();
         Object[] objects = new Object[parameters.length];
         String[] args = getArgs(cmd);
+
 
         for(int i = 0; i < parameters.length; i++){
 
             try {
 
                 if (parameters[i].getType() == MessageReceivedEvent.class) objects[i] = e;
-                else if (parameters[i].getType() == Channel.class) objects[i] = e.getChannel();
-                else if (parameters[i].getType() == Message.class) objects[i] = e.getMessage();
-                else if (parameters[i].getType() == Member.class) objects[i] = e.getMember();
-                else if (parameters[i].getType() == User.class) objects[i] = e.getAuthor();
-                else if (parameters[i].getType() == Guild.class) objects[i] = e.getGuild();
+                else if (parameters[i].getType() == Channel.class) objects[i] = e.getChannel() == null ? null :e.getChannel();
+                else if (parameters[i].getType() == Message.class) objects[i] = e.getMessage() == null ? null : e.getMessage();
+                else if (parameters[i].getType() == Member.class) objects[i] = e.getMember() == null ? null : e.getMember();
+                else if (parameters[i].getType() == User.class) objects[i] = e.getUser() == null ? null : e.getUser();
+                else if (parameters[i].getType() == Guild.class) objects[i] = e.getGuild() == null ? null : e.getGuild();
                 else if (parameters[i].getType() == Main.class) objects[i] = main;
                 else if (parameters[i].getType() == Utils.class) objects[i] = main.getUtils();
-                else if (parameters[i].getType() == TextChannel.class) objects[i] = e.getTextChannel();
+                else if (parameters[i].getType() == TextChannel.class) objects[i] = e.getTextChannel() == null ? null : e.getTextChannel();
                 else if (parameters[i].getType() == String[].class) objects[i] = args;
                 else if (parameters[i].getType() == CommandCore.class) objects[i] = this;
                 else if (parameters[i].getType() == JDA.class) objects[i] = main.getJda();
@@ -209,7 +218,7 @@ public class CommandCore {
 
                     } else if(type == Command.ExecutorType.USER){
 
-                        objects[i] = new PrintStreamChannel(e.getTextChannel(), System.out);
+                        objects[i] = new PrintStreamChannel(e.getTextChannel() == null ? null : e.getTextChannel(), System.out);
 
                     }
 
@@ -239,6 +248,49 @@ public class CommandCore {
             thread.setDaemon(true);
             thread.start();
             main.getUtils().debug("Un nouvelle thread commande a été crée par %s : %s ", e.getMember().getUser().getName(), thread.getName());
+        }
+
+        private class MessageCommandHandler{
+
+            private Channel channel;
+            private Message msg;
+            private Member member;
+            private User user;
+            private Guild g;
+            private TextChannel tx;
+            public MessageCommandHandler(Channel channel, Message msg, Member member, User user, Guild g, TextChannel tx) {
+                this.channel = channel;
+                this.msg = msg;
+                this.member = member;
+                this.user = user;
+                this.g = g;
+                this.tx = tx;
+            }
+
+            public Channel getChannel() {
+                return channel;
+            }
+
+            public Message getMessage() {
+                return msg;
+            }
+
+            public Member getMember() {
+                return member;
+            }
+
+            public User getUser() {
+                return user;
+            }
+
+            public Guild getGuild() {
+                return g;
+            }
+
+            public TextChannel getTextChannel() {
+                return tx;
+            }
+
         }
 
     }

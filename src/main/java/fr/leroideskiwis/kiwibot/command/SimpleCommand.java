@@ -13,7 +13,7 @@ public final class SimpleCommand {
 	private final Method method;
 	private final Role needRole;
 
-	public SimpleCommand(Role needRole,String name, String description, ExecutorType executorType, Object object, Method method) {
+	public SimpleCommand(Role needRole, String name, String description, ExecutorType executorType, Object object, Method method) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -25,7 +25,8 @@ public final class SimpleCommand {
 	
 	public boolean needRole(Role role){ return needRole == role; }
 	public Role getNeededRole(){return needRole;}
-	
+
+
 	public String getName() {
 		return name;
 	}

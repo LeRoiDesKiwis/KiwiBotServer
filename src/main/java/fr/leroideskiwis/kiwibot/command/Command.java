@@ -17,7 +17,8 @@ public @interface Command {
 	public ExecutorType type() default ExecutorType.USER;
 	public Role role() default Role.MEMBER;
 	public String[] aliases() default {};
-	
+
+
 	public enum ExecutorType{
 		ALL, USER, CONSOLE;
 	}
