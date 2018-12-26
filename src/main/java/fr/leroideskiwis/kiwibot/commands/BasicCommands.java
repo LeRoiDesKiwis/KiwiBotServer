@@ -81,6 +81,7 @@ public class BasicCommands {
         for(int i = 1; i < args.length; i++){
 
             str+=args[i];
+            if(i != args.length-1) str+=" ";
 
         }
 
@@ -92,10 +93,18 @@ public class BasicCommands {
 
     @Command(name="help")
     public void onHelp(String[] args, CommandCore commandCore, Main main, Guild guild, Member member, TextChannel channel, CommandCore core){
-        HelpType helpType;
+        HelpType helpType = null;
 
         try {
-            helpType = HelpType.valueOf(args[0].toUpperCase());
+
+            for(HelpType ht : HelpType.values()){
+
+                if(args[0].equalsIgnoreCase(commandCore.checkAliase(args[0], ht.toString().toLowerCase()))) helpType = ht;
+
+            }
+
+            if(helpType == null) throw new Exception();
+
         }catch(Exception e) {
 
             EmbedBuilder builder = new EmbedBuilder().setColor(Color.RED);

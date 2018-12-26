@@ -55,7 +55,7 @@ public class CommandGiveAway {
             }
             int chance = (int) ((count / (double) members.size()) * 100.0);
 
-            builder.addField(participant.getUser().getName(), chance + "% de chances de gagner !", true);
+            builder.addField(participant.getUser().getName(), chance + "% de chances de gagner ", true);
 
 
             memberst.add(participant);
@@ -66,7 +66,7 @@ public class CommandGiveAway {
         builder.setTitle("Il y a " + number + " participants.");
 
         channel.sendMessage(builder.build()).queue();
-        channel.sendMessage("Faites " + main.getPrefixe() + "ggo confirm pour procéder au tirage au sort.").queue();
+
 
     }
 
@@ -169,6 +169,12 @@ public class CommandGiveAway {
         return invitations;
     }
 
+    public boolean checkVip(Member m){
+
+        return m.getRoles().contains(main.getJda().getRoleById("524954102292152330"));
+
+    }
+
     public List<Member> getPoints(Guild guild) {
 
         List<Member> memberPoints = new ArrayList<>();
@@ -178,7 +184,7 @@ public class CommandGiveAway {
 
             Integer invit = entry.getValue();
 
-            int points = ((int) (1.1 * Math.log(invit) + 1));
+            int points = ((int) ((checkVip(member) ? 1.5 : 1.1) * Math.log(invit) + 1));
 
             for (int i = 0; i < points; i++) {
 

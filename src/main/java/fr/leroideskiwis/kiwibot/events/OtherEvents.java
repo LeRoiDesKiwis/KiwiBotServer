@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.PrivateChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
+import net.dv8tion.jda.core.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 import java.awt.*;
@@ -16,6 +18,12 @@ public class OtherEvents extends ListenerAdapter {
     public OtherEvents(Main main) {
 
         this.main = main;
+
+    }
+
+    public void sendMessageToLogs(EmbedBuilder builder){
+
+        main.getJda().getTextChannelById(main.getConfig("logTX")).sendMessage(builder.build()).queue();
 
     }
 

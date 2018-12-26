@@ -1,12 +1,19 @@
 package fr.leroideskiwis.kiwibot.utils;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 
 public class Utils {
 
     public void debug(String s, Object... obs){
 
-        System.out.println("[DEBUG] "+format(s, obs));
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+
+        System.out.println(format("[%s] [INFO] "+format(s, obs), dtf.format(now)));
 
     }
 

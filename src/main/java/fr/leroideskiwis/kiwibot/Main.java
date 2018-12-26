@@ -5,6 +5,7 @@ import fr.leroideskiwis.kiwibot.events.CommandEvents;
 import fr.leroideskiwis.kiwibot.events.mutesEvent;
 import fr.leroideskiwis.kiwibot.events.OtherEvents;
 import fr.leroideskiwis.kiwibot.utils.Utils;
+import fr.leroideskiwis.kiwibot.window.LauncherWindow;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -96,6 +97,7 @@ public class Main extends ListenerAdapter implements Runnable {
     public static void main(String... args) {
 
         try {
+
             new Thread(new Main(args), "main-bot").start();
         } catch (Exception e) {
             e.printStackTrace();

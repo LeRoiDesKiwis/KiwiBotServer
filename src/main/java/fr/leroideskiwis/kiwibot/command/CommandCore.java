@@ -81,7 +81,7 @@ public class CommandCore {
         return s.split(" ")[0];
     }
 
-    private String checkAliase(String cmd, String toTest){
+    public String checkAliase(String cmd, String toTest){
 
         String finalStr = "";
 
