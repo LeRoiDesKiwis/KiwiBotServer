@@ -23,6 +23,19 @@ public class CommandsModerator {
 
     }
 
+    @Command(name="checkVoteBan")
+    public void check(Guild g, Main main, String[] args, TextChannel channel){
+
+        VoteBan v = new VoteBan(main);
+
+        Message msg = g.getTextChannelById(main.getConfig("voteBan")).getMessageById(args[0]).complete();
+
+        Member[] members = v.getVoteBan(g, msg);
+
+        channel.sendMessage("Le voteban de "+main.getUtils().getName(members[1])+" par "+main.getUtils().getName(members[0])+" est à "+v.getPource(msg)+"%. Il doit être supérieur à 75% pour que "+main.getUtils().getName(members[1])+" sois ban !").queue();
+
+    }
+
     @Command(name="voteban",role=Role.TEST_MODO)
     public void voteBan(Main main, Member m, TextChannel channel, Message msg){
 

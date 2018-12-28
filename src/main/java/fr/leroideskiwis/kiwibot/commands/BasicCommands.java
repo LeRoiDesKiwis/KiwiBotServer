@@ -99,7 +99,7 @@ public class BasicCommands {
 
             for(HelpType ht : HelpType.values()){
 
-                if(args[0].equalsIgnoreCase(commandCore.checkAliase(args[0], ht.toString().toLowerCase()))) helpType = ht;
+                if(ht.toString().toLowerCase().startsWith(args[0].toLowerCase())) helpType = ht;
 
             }
 

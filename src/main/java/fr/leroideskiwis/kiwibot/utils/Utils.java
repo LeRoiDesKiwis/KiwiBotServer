@@ -1,9 +1,7 @@
 package fr.leroideskiwis.kiwibot.utils;
 
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import fr.leroideskiwis.kiwibot.Role;
+import net.dv8tion.jda.core.entities.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -51,6 +49,7 @@ public class Utils {
 
     }
 
+
     public String getName(Member m){
         return m.getNickname() == null ? m.getUser().getName() : m.getNickname();
     }
@@ -83,6 +82,20 @@ public class Utils {
 
             }
         }, "thread-send-mp-"+new Random().nextInt(9999)).start();
+
+    }
+
+    public int getEmotesSize(Message msg){
+
+        int count = 0;
+
+        for(MessageReaction reactionEmote : msg.getReactions()){
+
+            count += reactionEmote.getCount();
+
+        }
+
+        return count;
 
     }
 

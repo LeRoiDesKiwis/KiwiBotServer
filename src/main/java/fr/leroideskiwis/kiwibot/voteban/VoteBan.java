@@ -21,7 +21,7 @@ public class VoteBan {
 
     public void checkAndBan(Guild guild, Message msg){
 
-        if(msg.getReactions().get(0).getCount() >= 5){
+        if(getPource(msg) >= 80){
 
             Member[] members = getVoteBan(guild, msg);
 
@@ -34,6 +34,17 @@ public class VoteBan {
         }
 
     }
+
+    public double getPource(Message msg){
+        return main.getUtils().getEmotesSize(msg) >= 5 ? main.getUtils().round(((double)msg.getReactions().get(0).getCount()/(double)main.getUtils().getEmotesSize(msg))*100.0, 2) : 0;
+    }
+
+    /**
+     *
+     * @param g
+     * @param msg
+     * @return members[0] = banner & members[1] = votebanned
+     */
 
     public Member[] getVoteBan(Guild g, Message msg){
 
@@ -57,11 +68,12 @@ public class VoteBan {
         builder.setAuthor("Demande de ban par "+main.getUtils().getName(banner), null, banner.getUser().getDefaultAvatarUrl());
         builder.setTitle("Demande de ban de "+main.getUtils().getName(target));
 
-        builder.setDescription("Validez par la réaction :white_check_mark: si vous êtes pour son ban.");
+        builder.setDescription("Validez par la réaction :white_check_mark: si vous êtes pour son ban et validez la réaction ❌ si vous êtes contre. Il faut au moins 75% de pour pour être ban (tant qu'il n'y a pas au moins 5 réactions, le pourcentage sera 0%");
 
         main.getJda().getTextChannelById(main.getConfig("voteBan")).sendMessage(builder.build()).queue(msg -> {
 
             msg.addReaction("✅").queue();
+            msg.addReaction("❌").queue();
 
         });
 

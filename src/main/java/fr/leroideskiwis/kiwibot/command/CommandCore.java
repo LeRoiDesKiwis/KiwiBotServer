@@ -81,7 +81,7 @@ public class CommandCore {
         return s.split(" ")[0];
     }
 
-    public String checkAliase(String cmd, String toTest){
+    /*public String checkAliase(String cmd, String toTest){
 
         String finalStr = "";
 
@@ -96,17 +96,44 @@ public class CommandCore {
 
         return finalStr;
 
-    }
+    }*/
+
 
     public boolean checkPerm(Role role, Member member, Guild g){
 
-        return member.getUser().equals(main.getJda().getSelfUser()) || member.equals(g.getOwner()) || role == Role.MEMBER || member.getRoles().contains(g.getRoleById(role.getId()));
+        int perm = 0;
+
+        if(role == Role.MEMBER) return true;
+
+        if(member.getRoles().contains(g.getRoleById(role.getId())))
+            return true;
+
+        for(Role r : Role.values()){
+
+            if(getPlace(r) > perm) perm = getPlace(r);
+
+        }
+
+        return member.getUser().equals(main.getJda().getSelfUser()) || member.equals(g.getOwner()) || role == Role.MEMBER || getPlace(role) <= perm;
 
     }
 
     public void commandUser(String s, TextChannel channel, Member m, Guild guild){
 
         commandUser(s, null, channel, m, guild);
+
+    }
+
+
+    public int getPlace(Role role){
+
+        for(int i = 0; i < Role.values().length; i++){
+
+            if(Role.values()[i] == role) return i;
+
+        }
+
+        return -1;
 
     }
 
@@ -122,13 +149,8 @@ public class CommandCore {
 
                     if (!(simpleCommand.getExecutorType() == Command.ExecutorType.ALL || simpleCommand.getExecutorType() == Command.ExecutorType.USER))
                         continue;
-                    if (cmd.equalsIgnoreCase(checkAliase(cmd, simpleCommand.getName()))) {
+                    if (simpleCommand.getName().startsWith(cmd)) available.add(simpleCommand);
 
-
-                            available.add(simpleCommand);
-
-
-                    }
 
             }
 
