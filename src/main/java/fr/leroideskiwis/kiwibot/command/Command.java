@@ -12,15 +12,15 @@ import java.lang.annotation.Target;
 
 public @interface Command {
 
-	public String name();
-	public String description() default "aucune description";
-	public ExecutorType type() default ExecutorType.USER;
-	public Role role() default Role.MEMBER;
-	public String[] aliases() default {};
+	String name();
+	String description() default "aucune description";
+	ExecutorType type() default ExecutorType.USER;
+	Role role() default Role.MEMBER;
+	String[] aliases() default {};
 
 
-	public enum ExecutorType{
-		ALL, USER, CONSOLE;
+	enum ExecutorType{
+		ALL, USER, CONSOLE
 	}
 	
 }

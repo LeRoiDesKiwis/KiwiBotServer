@@ -46,7 +46,14 @@ public class CommandsModerator {
 
         }
 
-        new VoteBan(main).init(m, msg.getMentionedMembers().get(0));
+        Member target = msg.getMentionedMembers().get(0);
+
+        if(target.equals(m)){
+            channel.sendMessage("Vous ne pouvez pas vous auto-voteban !").queue();
+            return;
+        }
+
+        new VoteBan(main).init(m, target);
 
     }
 

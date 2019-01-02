@@ -110,7 +110,7 @@ public class CommandCore {
 
         for(Role r : Role.values()){
 
-            if(getPlace(r) > perm) perm = getPlace(r);
+            if(getPlace(r) > perm && member.getRoles().contains(main.getJda().getRoleById(r.getId()))) perm = getPlace(r);
 
         }
 
