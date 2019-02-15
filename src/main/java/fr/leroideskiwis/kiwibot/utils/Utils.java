@@ -1,8 +1,10 @@
 package fr.leroideskiwis.kiwibot.utils;
 
 import fr.leroideskiwis.kiwibot.Role;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.*;
 
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -83,6 +85,10 @@ public class Utils {
             }
         }, "thread-send-mp-"+new Random().nextInt(9999)).start();
 
+    }
+
+    public MessageEmbed getErrorEmbed(String msg){
+        return new EmbedBuilder().setColor(Color.RED).setTitle("Erreur !").setDescription(msg).build();
     }
 
     public int getEmotesSize(Message msg){

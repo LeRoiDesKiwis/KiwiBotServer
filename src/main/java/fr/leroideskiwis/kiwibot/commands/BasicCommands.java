@@ -1,23 +1,31 @@
 package fr.leroideskiwis.kiwibot.commands;
 
+import com.sun.deploy.uitoolkit.impl.text.TextWindow;
 import fr.leroideskiwis.kiwibot.Main;
 import fr.leroideskiwis.kiwibot.Role;
+import fr.leroideskiwis.kiwibot.audio.AudioListener;
+import fr.leroideskiwis.kiwibot.audio.AudioSender;
 import fr.leroideskiwis.kiwibot.command.Command;
 import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.command.SimpleCommand;
+import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.audio.*;
+import net.dv8tion.jda.core.audio.hooks.ConnectionListener;
+import net.dv8tion.jda.core.audio.hooks.ConnectionStatus;
+import net.dv8tion.jda.core.entities.*;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.managers.AudioManager;
 
 import javax.activation.CommandMap;
-import java.awt.*;
 import java.io.PrintStream;
+import java.util.*;
+import java.awt.Color;
 
 public class BasicCommands {
+
+    public List<VoiceChannel> recordVoice = new ArrayList<>();
 
     @Command(name="stop",type= Command.ExecutorType.ALL,role=Role.OWNER)
     public void stop(Main main, PrintStream printStream){
@@ -183,6 +191,94 @@ public class BasicCommands {
         builder.setTitle(count+" "+helpType.getMessage());
 
         channel.sendMessage(builder.build()).queue();
+
+
+    }
+
+    @Command(name="test")
+    public void test(Guild g, Member m, TextChannel textChannel, Utils utils){
+
+        if(!m.getVoiceState().inVoiceChannel()){
+
+            textChannel.sendMessage(utils.getErrorEmbed("Vous devez être dans un channel vocal !")).queue();
+
+            return;
+        }
+
+        VoiceChannel channel = m.getVoiceState().getChannel();
+
+        g.getAudioManager().setReceivingHandler(new AudioReceiveHandler() {
+            @Override
+            public boolean canReceiveCombined() {
+                return false;
+            }
+
+            @Override
+            public boolean canReceiveUser() {
+                return false;
+            }
+
+            @Override
+            public void handleCombinedAudio(CombinedAudio combinedAudio) {
+
+            }
+
+            @Override
+            public void handleUserAudio(UserAudio userAudio) {
+
+            }
+        });
+        g.getAudioManager().setSendingHandler(new AudioSendHandler() {
+            @Override
+            public boolean canProvide() {
+                return true;
+            }
+
+            @Override
+            public byte[] provide20MsAudio() {
+                byte[] bytes = new byte[3840];
+
+                for(int i = 0; i < bytes.length; i++){
+
+                    bytes[i] = (byte)new Random().nextInt(255);
+
+                }
+
+                return bytes;
+            }
+        });
+        g.getAudioManager().openAudioConnection(channel);
+
+    }
+
+    @Command(name="record")
+    public void record(Utils utils, User user, Member m, TextChannel textChannel, String[] args, Guild g, JDA jda){
+
+        if(!m.getVoiceState().inVoiceChannel()){
+
+            textChannel.sendMessage(utils.getErrorEmbed("Vous devez être dans un channel vocal !")).queue();
+
+            return;
+        }
+
+        VoiceChannel channel = m.getVoiceState().getChannel();
+
+        if(!recordVoice.contains(channel)) {
+            AudioManager manager = g.getAudioManager();
+
+            AudioSender audioSender = new AudioSender();
+
+            manager.setReceivingHandler(new AudioListener(audioSender));
+            manager.setSendingHandler(audioSender);
+            manager.openAudioConnection(channel);
+            recordVoice.add(channel);
+            textChannel.sendMessage("Connecté au channel **"+channel.getName()+"**").queue();
+
+        } else {
+            textChannel.sendMessage("Déconnecté du channel **"+channel.getName()+"**").queue();
+            g.getAudioManager().closeAudioConnection();
+            recordVoice.remove(channel);
+        }
 
 
     }

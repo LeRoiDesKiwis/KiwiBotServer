@@ -68,6 +68,8 @@ public class OtherEvents extends ListenerAdapter {
         main.getJda().getTextChannelById(main.getConfig("welcomeTX")).sendMessage(builder.build()).queue();
 
         main.getUtils().sendPrivateMessage(main.getJda().getTextChannelById(main.getConfig("welcomeTX")), event.getMember(), "N'oublie pas de participer au concours (si il y en a un en ce moment) en faisait ;gr dans #commande-bots !", 7);
+
+
     }
 
     @Override

@@ -28,6 +28,11 @@ public class CommandsModerator {
 
         VoteBan v = new VoteBan(main);
 
+        if(args.length == 0){
+            channel.sendMessage(main.getUtils().getErrorEmbed("Vous devez fournir un argument !")).queue();
+            return;
+        }
+
         Message msg = g.getTextChannelById(main.getConfig("voteBan")).getMessageById(args[0]).complete();
 
         Member[] members = v.getVoteBan(g, msg);
