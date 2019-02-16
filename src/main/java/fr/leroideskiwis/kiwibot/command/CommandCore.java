@@ -4,6 +4,7 @@ import fr.leroideskiwis.kiwibot.Main;
 import fr.leroideskiwis.kiwibot.command.printstreams.PrintStreamChannel;
 import fr.leroideskiwis.kiwibot.commands.BasicCommands;
 import fr.leroideskiwis.kiwibot.commands.CommandGiveAway;
+import fr.leroideskiwis.kiwibot.commands.CommandMusic;
 import fr.leroideskiwis.kiwibot.commands.CommandsModerator;
 import fr.leroideskiwis.kiwibot.exceptions.KiwiException;
 import fr.leroideskiwis.kiwibot.utils.Utils;
@@ -36,6 +37,7 @@ public class CommandCore {
         registerCommand(new CommandGiveAway(main));
         registerCommand(new BasicCommands());
         registerCommand(new CommandsModerator());
+        registerCommand(new CommandMusic());
     }
 
     private void registerCommand(Object o){
@@ -220,6 +222,7 @@ public class CommandCore {
             try {
 
                 if (parameters[i].getType() == MessageReceivedEvent.class) objects[i] = ev;
+                else if (parameters[i].getType() == String.class) objects[i] = cmd;
                 else if (parameters[i].getType() == Channel.class) objects[i] = e.getChannel();
                 else if (parameters[i].getType() == Message.class) objects[i] = e.getMessage();
                 else if (parameters[i].getType() == Member.class) objects[i] = e.getMember();

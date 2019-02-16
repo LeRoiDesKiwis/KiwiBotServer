@@ -1,40 +1,44 @@
 package fr.leroideskiwis.kiwibot.audio;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-
+import javazoom.jl.decoder.Header;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
-import net.dv8tion.jda.core.audio.AudioSendHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+
+import java.io.*;
 
 public class AudioListener implements AudioReceiveHandler {
-
-    private AudioSender sender;
-
-    public AudioListener(AudioSender s){
-        this.sender = s;
-
-    }
 
     public boolean canReceiveCombined() {
         return true;
     }
 
+    private FileOutputStream stream;
 
     public boolean canReceiveUser() {
         return false;
     }
 
+    public AudioListener(File file) throws IOException {
+
+        this.stream = new FileOutputStream(file);
+        //HEADER
+        this.stream.write(new byte[]{73, 68, 51});
+
+    }
+
+    public void close() throws IOException {
+        this.stream.flush();
+        this.stream.close();
+    }
 
     @Override
     public void handleCombinedAudio(CombinedAudio arg0) {
-
-        sender.sendBytes(arg0.getAudioData(1.0));
+        try {
+            this.stream.write(arg0.getAudioData(1.0));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 

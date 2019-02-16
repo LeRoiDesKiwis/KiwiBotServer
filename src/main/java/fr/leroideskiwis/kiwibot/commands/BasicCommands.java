@@ -1,31 +1,30 @@
 package fr.leroideskiwis.kiwibot.commands;
 
-import com.sun.deploy.uitoolkit.impl.text.TextWindow;
 import fr.leroideskiwis.kiwibot.Main;
 import fr.leroideskiwis.kiwibot.Role;
 import fr.leroideskiwis.kiwibot.audio.AudioListener;
 import fr.leroideskiwis.kiwibot.audio.AudioSender;
+import fr.leroideskiwis.kiwibot.audio.SilentSender;
 import fr.leroideskiwis.kiwibot.command.Command;
 import fr.leroideskiwis.kiwibot.command.CommandCore;
 import fr.leroideskiwis.kiwibot.command.SimpleCommand;
 import fr.leroideskiwis.kiwibot.utils.Utils;
+import javazoom.jl.decoder.*;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.audio.*;
-import net.dv8tion.jda.core.audio.hooks.ConnectionListener;
-import net.dv8tion.jda.core.audio.hooks.ConnectionStatus;
+import net.dv8tion.jda.core.audio.AudioReceiveHandler;
+import net.dv8tion.jda.core.audio.AudioSendHandler;
+import net.dv8tion.jda.core.audio.CombinedAudio;
+import net.dv8tion.jda.core.audio.UserAudio;
 import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.managers.AudioManager;
 
-import javax.activation.CommandMap;
-import java.io.PrintStream;
+import javax.sound.sampled.*;
+import java.io.*;
 import java.util.*;
 import java.awt.Color;
 
 public class BasicCommands {
-
-    public List<VoiceChannel> recordVoice = new ArrayList<>();
 
     @Command(name="stop",type= Command.ExecutorType.ALL,role=Role.OWNER)
     public void stop(Main main, PrintStream printStream){
@@ -252,7 +251,7 @@ public class BasicCommands {
     }
 
     @Command(name="record")
-    public void record(Utils utils, User user, Member m, TextChannel textChannel, String[] args, Guild g, JDA jda){
+    public void record(Utils utils, User user, Member m, TextChannel textChannel, String[] args, Guild g, JDA jda) throws IOException, LineUnavailableException {
 
         if(!m.getVoiceState().inVoiceChannel()){
 
@@ -263,24 +262,83 @@ public class BasicCommands {
 
         VoiceChannel channel = m.getVoiceState().getChannel();
 
-        if(!recordVoice.contains(channel)) {
+        if(!g.getAudioManager().isConnected()) {
+
             AudioManager manager = g.getAudioManager();
 
-            AudioSender audioSender = new AudioSender();
-
-            manager.setReceivingHandler(new AudioListener(audioSender));
-            manager.setSendingHandler(audioSender);
+            manager.setSendingHandler(new SilentSender());
+            manager.setReceivingHandler(new AudioListener(new File("test.mp3")));
             manager.openAudioConnection(channel);
-            recordVoice.add(channel);
             textChannel.sendMessage("Connecté au channel **"+channel.getName()+"**").queue();
 
         } else {
             textChannel.sendMessage("Déconnecté du channel **"+channel.getName()+"**").queue();
+            AudioListener listener = (AudioListener) g.getAudioManager().getReceiveHandler();
             g.getAudioManager().closeAudioConnection();
-            recordVoice.remove(channel);
+            listener.close();
         }
 
 
+    }
+
+    //@Command(name="playmp3")
+    public void plaympthree(Guild g, String[] args, TextChannel textChannel, Member m) throws IOException, BitstreamException, DecoderException, UnsupportedAudioFileException, LineUnavailableException {
+
+        File file = new File(args[0]);
+
+        for(AudioFileFormat.Type t : AudioSystem.getAudioFileTypes()){
+            textChannel.sendMessage(t.toString()).queue();
+        }
+
+        AudioInputStream stream = AudioSystem.getAudioInputStream(file);
+        AudioFormat format = stream.getFormat();
+        DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+        SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+        line.open(format);
+
+        byte[] current = new byte[1024];
+        int read = 0;
+
+        while((read = stream.read(current, 0, current.length)) != -1){
+
+            g.getAudioManager().setReceivingHandler(new AudioReceiveHandler() {
+                @Override
+                public boolean canReceiveCombined() {
+                    return false;
+                }
+
+                @Override
+                public boolean canReceiveUser() {
+                    return false;
+                }
+
+                @Override
+                public void handleCombinedAudio(CombinedAudio combinedAudio) {
+
+                }
+
+                @Override
+                public void handleUserAudio(UserAudio userAudio) {
+
+                }
+            });
+            g.getAudioManager().setSendingHandler(new AudioSendHandler() {
+                @Override
+                public boolean canProvide() {
+                    return true;
+                }
+
+                @Override
+                public byte[] provide20MsAudio() {
+
+                    return current;
+                }
+            });
+
+            g.getAudioManager().openAudioConnection(m.getVoiceState().getChannel());
+
+
+        }
     }
 
     private enum HelpType{

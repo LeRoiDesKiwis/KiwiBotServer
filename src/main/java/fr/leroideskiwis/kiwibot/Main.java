@@ -129,6 +129,10 @@ public class Main extends ListenerAdapter implements Runnable {
             e.printStackTrace();
         }
 
+        for(Guild g : jda.getGuilds()){
+            g.getAudioManager().closeAudioConnection();
+        }
+
         while (running) {
             System.out.print(jda.getSelfUser().getName() + " > ");
 
