@@ -40,6 +40,7 @@ public class Main extends ListenerAdapter implements Runnable {
 
     static {
         Configuration config = null;
+        Configuration users1 = null;
         try {
             config = new Configuration("./config.json");
         } catch (IOException e) {

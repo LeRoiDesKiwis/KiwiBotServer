@@ -32,10 +32,25 @@ public class Configuration {
         return file;
     }
 
+    public void setObject(String key, Object value){
+        if(jsonObject.has(key))
+            jsonObject.remove(key);
+        jsonObject.put(key, value);
+    }
+
     public JSONObject getJsonObject(String key, JSONObject defaultValue){
         if(!jsonObject.has(key))
             jsonObject.put(key, defaultValue);
         return jsonObject.getJSONObject(key);
+    }
+
+    public Object getObject(String key, Object defaultValue){
+
+        if(!jsonObject.has(key))
+            if(defaultValue != null)
+                jsonObject.put(key, defaultValue);
+
+        return jsonObject.get(key);
     }
 
     public void save(){

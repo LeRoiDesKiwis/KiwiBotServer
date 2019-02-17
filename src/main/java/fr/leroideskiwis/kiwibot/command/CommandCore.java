@@ -2,10 +2,7 @@ package fr.leroideskiwis.kiwibot.command;
 
 import fr.leroideskiwis.kiwibot.Main;
 import fr.leroideskiwis.kiwibot.command.printstreams.PrintStreamChannel;
-import fr.leroideskiwis.kiwibot.commands.BasicCommands;
-import fr.leroideskiwis.kiwibot.commands.CommandGiveAway;
-import fr.leroideskiwis.kiwibot.commands.CommandMusic;
-import fr.leroideskiwis.kiwibot.commands.CommandsModerator;
+import fr.leroideskiwis.kiwibot.commands.*;
 import fr.leroideskiwis.kiwibot.exceptions.KiwiException;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import net.dv8tion.jda.core.EmbedBuilder;
@@ -38,6 +35,7 @@ public class CommandCore {
         registerCommand(new BasicCommands());
         registerCommand(new CommandsModerator());
         registerCommand(new CommandMusic());
+        registerCommand(new CommandJSON());
     }
 
     private void registerCommand(Object o){
@@ -210,14 +208,14 @@ public class CommandCore {
 
     }
 
-    private void execute(MessageReceivedEvent ev, Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageCommandHandler e) throws KiwiException {
+    private void execute(MessageReceivedEvent ev, Command.ExecutorType type, SimpleCommand simpleCommand, String cmd, MessageCommandHandler e) throws KiwiException, InvocationTargetException, IllegalAccessException {
 
         Parameter[] parameters = simpleCommand.getMethod().getParameters();
         Object[] objects = new Object[parameters.length];
         String[] args = getArgs(cmd);
 
 
-        for(int i = 0; i < parameters.length; i++){
+        for (int i = 0; i < parameters.length; i++) {
 
             try {
 
@@ -234,21 +232,21 @@ public class CommandCore {
                 else if (parameters[i].getType() == String[].class) objects[i] = args;
                 else if (parameters[i].getType() == CommandCore.class) objects[i] = this;
                 else if (parameters[i].getType() == JDA.class) objects[i] = main.getJda();
-                else if (parameters[i].getType() == CommandCore.class) objects[i]= this;
+                else if (parameters[i].getType() == CommandCore.class) objects[i] = this;
                 else if (parameters[i].getType() == PrintStream.class) {
 
-                    if(type == Command.ExecutorType.CONSOLE){
+                    if (type == Command.ExecutorType.CONSOLE) {
 
                         objects[i] = System.out;
 
-                    } else if(type == Command.ExecutorType.USER){
+                    } else if (type == Command.ExecutorType.USER) {
 
                         objects[i] = new PrintStreamChannel(e.getTextChannel() == null ? null : e.getTextChannel(), System.out);
 
                     }
 
                 }
-            }catch(NullPointerException npe){
+            } catch (NullPointerException npe) {
 
                 continue;
 
@@ -257,9 +255,8 @@ public class CommandCore {
         }
 
 
-
+        if (e != null) {
             Thread thread = new Thread(() -> {
-
 
 
                 try {
@@ -269,11 +266,12 @@ public class CommandCore {
                 } catch (InvocationTargetException e1) {
                     e1.printStackTrace();
                 }
-            }, "command-"+simpleCommand.getName()+"-"+new Random().nextInt(99999));
+            }, "command-" + simpleCommand.getName() + "-" + new Random().nextInt(99999));
             thread.setDaemon(true);
             thread.start();
             main.getUtils().debug("Un nouvelle thread commande a été crée par %s : %s ", e.getMember().getUser().getName(), thread.getName());
-        }
+        } else simpleCommand.getMethod().invoke(simpleCommand.getObject(), objects);
+    }
 
         private class MessageCommandHandler{
 

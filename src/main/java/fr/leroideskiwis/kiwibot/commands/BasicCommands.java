@@ -12,6 +12,7 @@ import fr.leroideskiwis.kiwibot.utils.Utils;
 import javazoom.jl.decoder.*;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.audio.AudioReceiveHandler;
 import net.dv8tion.jda.core.audio.AudioSendHandler;
 import net.dv8tion.jda.core.audio.CombinedAudio;
@@ -267,7 +268,7 @@ public class BasicCommands {
             AudioManager manager = g.getAudioManager();
 
             manager.setSendingHandler(new SilentSender());
-            manager.setReceivingHandler(new AudioListener(new File("test.mp3")));
+            manager.setReceivingHandler(new AudioListener("test"));
             manager.openAudioConnection(channel);
             textChannel.sendMessage("Connecté au channel **"+channel.getName()+"**").queue();
 
@@ -279,31 +280,6 @@ public class BasicCommands {
         }
 
 
-    }
-
-    @Command(name="saveConfig", role = Role.OWNER)
-    public void saveConfig(Main main, TextChannel channel){
-        Main.configuration.save();
-        channel.sendMessage("La configuration à bien été sauvegardée !").queue();
-    }
-
-    @Command(name="reloadConfig", role = Role.OWNER)
-    public void loadConfig(TextChannel channel) throws IOException {
-        Main.configuration.reload();
-        channel.sendMessage("Configuration rechargée avec succès !").queue();
-    }
-
-    @Command(name="getConfig", role = Role.OWNER)
-    public void getConfig(Main m, TextChannel tx){
-        tx.sendFile(Main.configuration.getFile(), "Voici votre config ! Ce message s'auto-supprimera dans 5 secondes.").queue(msg -> {
-            try {
-                Thread.sleep(5000);
-                if(msg != null)
-                    msg.delete().queue();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     //@Command(name="playmp3")

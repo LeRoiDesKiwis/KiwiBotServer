@@ -6,8 +6,11 @@ import net.dv8tion.jda.core.audio.CombinedAudio;
 import net.dv8tion.jda.core.audio.UserAudio;
 
 import java.io.*;
+import java.util.Scanner;
 
 public class AudioListener implements AudioReceiveHandler {
+
+    private final File file;
 
     public boolean canReceiveCombined() {
         return true;
@@ -19,17 +22,18 @@ public class AudioListener implements AudioReceiveHandler {
         return false;
     }
 
-    public AudioListener(File file) throws IOException {
-
+    public AudioListener(String path) throws IOException {
+        this.file = new File(path+".pcm");
         this.stream = new FileOutputStream(file);
-        //HEADER
-        this.stream.write(new byte[]{73, 68, 51});
 
     }
 
     public void close() throws IOException {
         this.stream.flush();
         this.stream.close();
+        File file2 = new File(file.getName().replace(".pcm", "")+".wav");
+        new PcmToWav().rawToWave(file, file2);
+
     }
 
     @Override

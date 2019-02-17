@@ -36,6 +36,13 @@ public class CommandGiveAway {
         EmbedBuilder builder = new EmbedBuilder().setColor(Color.CYAN);
 
         List<Member> memberst = new ArrayList<>();
+        String whatWin = Main.configuration.getString("concours", "rien");
+
+        if(whatWin.equalsIgnoreCase("rien")){
+
+            channel.sendMessage(main.getUtils().getErrorEmbed("Aucun concours disponible pour l'instant.")).queue();
+            return;
+        }
 
         int number = 0;
 
@@ -63,7 +70,7 @@ public class CommandGiveAway {
 
         }
 
-        builder.setTitle("Il y a " + number + " participants.");
+        builder.setTitle("Il y a " + number + " participants. Le gagnant gagne **"+whatWin+"**");
 
         channel.sendMessage(builder.build()).queue();
 
