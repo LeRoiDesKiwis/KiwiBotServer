@@ -1,10 +1,12 @@
 package fr.leroideskiwis.kiwibot.commands;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import fr.leroideskiwis.kiwibot.command.Command;
 import fr.leroideskiwis.kiwibot.music.MusicManager;
 import fr.leroideskiwis.kiwibot.music.MusicPlayer;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import javafx.scene.text.TextBoundsType;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
@@ -39,6 +41,26 @@ public class CommandMusic {
         manager.loadTrack(c, builder.toString());
     }
 
+    @Command(name="list")
+    public void list(Utils u, Guild g, TextChannel c){
+
+        MusicPlayer player = manager.getPlayer(g);
+
+        if((!g.getAudioManager().isAttemptingToConnect() && !g.getAudioManager().isConnected())){
+            c.sendMessage("Le bot n'a pas de piste en cours.").queue();
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder("Il y a **"+player.getListener().getTrackSize()+"** musiques en attente :\n");
+
+        for(AudioTrack track : player.getListener().getTracks()) {
+            builder.append(u.concate("--> **", track.getInfo().title+"** de **", track.getInfo().author, "**."));
+            builder.append("\n");
+        }
+        c.sendMessage(builder.toString()).queue();
+
+    }
+
     @Command(name="skip")
     public void skip(Guild g, TextChannel c){
         if((!g.getAudioManager().isAttemptingToConnect() && !g.getAudioManager().isConnected())){
@@ -59,6 +81,7 @@ public class CommandMusic {
         }
 
         player.getListener().getTracks().clear();
+        g.getAudioManager().closeAudioConnection();
         c.sendMessage("La liste d'attente à été vidée.").queue();
 
     }

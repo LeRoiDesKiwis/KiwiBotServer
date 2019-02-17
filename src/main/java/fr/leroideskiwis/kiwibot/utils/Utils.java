@@ -51,6 +51,14 @@ public class Utils {
 
     }
 
+    public String concate(String... args){
+        StringBuilder builder = new StringBuilder();
+
+        for(String arg : args){
+            builder.append(arg);
+        }
+        return builder.toString();
+    }
 
     public String getName(Member m){
         return m.getNickname() == null ? m.getUser().getName() : m.getNickname();

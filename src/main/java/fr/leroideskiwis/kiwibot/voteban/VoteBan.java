@@ -68,7 +68,7 @@ public class VoteBan {
         builder.setAuthor("Demande de ban par "+main.getUtils().getName(banner), null, banner.getUser().getDefaultAvatarUrl());
         builder.setTitle("Demande de ban de "+main.getUtils().getName(target));
 
-        builder.setDescription("Validez par la réaction :white_check_mark: si vous êtes pour son ban et validez la réaction ❌ si vous êtes contre. Il faut au moins 75% de pour pour être ban (tant qu'il n'y a pas au moins 5 réactions, le pourcentage sera 0%");
+        builder.setDescription("Validez par la réaction :white_check_mark: si vous êtes pour son ban et validez la réaction ❌ si vous êtes contre. Il faut au moins 75% de pour pour être ban (tant qu'il n'y a pas au moins 5 réactions, le pourcentage sera 0%)");
 
         main.getJda().getTextChannelById(main.getConfig("voteBan")).sendMessage(builder.build()).queue(msg -> {
 

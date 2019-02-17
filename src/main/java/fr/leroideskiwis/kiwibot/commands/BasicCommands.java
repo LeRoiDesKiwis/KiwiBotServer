@@ -281,6 +281,31 @@ public class BasicCommands {
 
     }
 
+    @Command(name="saveConfig", role = Role.OWNER)
+    public void saveConfig(Main main, TextChannel channel){
+        Main.configuration.save();
+        channel.sendMessage("La configuration à bien été sauvegardée !").queue();
+    }
+
+    @Command(name="reloadConfig", role = Role.OWNER)
+    public void loadConfig(TextChannel channel) throws IOException {
+        Main.configuration.reload();
+        channel.sendMessage("Configuration rechargée avec succès !").queue();
+    }
+
+    @Command(name="getConfig", role = Role.OWNER)
+    public void getConfig(Main m, TextChannel tx){
+        tx.sendFile(Main.configuration.getFile(), "Voici votre config ! Ce message s'auto-supprimera dans 5 secondes.").queue(msg -> {
+            try {
+                Thread.sleep(5000);
+                if(msg != null)
+                    msg.delete().queue();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     //@Command(name="playmp3")
     public void plaympthree(Guild g, String[] args, TextChannel textChannel, Member m) throws IOException, BitstreamException, DecoderException, UnsupportedAudioFileException, LineUnavailableException {
 

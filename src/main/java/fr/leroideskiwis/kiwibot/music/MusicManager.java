@@ -53,7 +53,7 @@ public class MusicManager {
                     player.playTrack(track);
                 }
 
-                channel.sendMessage(builder.build());
+                channel.sendMessage(builder.build()).queue();
 
             }
 

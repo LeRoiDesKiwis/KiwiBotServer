@@ -5,20 +5,24 @@ import fr.leroideskiwis.kiwibot.events.CommandEvents;
 import fr.leroideskiwis.kiwibot.events.mutesEvent;
 import fr.leroideskiwis.kiwibot.events.OtherEvents;
 import fr.leroideskiwis.kiwibot.noraid.RaidProtection;
+import fr.leroideskiwis.kiwibot.utils.Configuration;
 import fr.leroideskiwis.kiwibot.utils.Utils;
 import fr.leroideskiwis.kiwibot.window.LauncherWindow;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
+import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import org.json.JSONObject;
 
 import javax.security.auth.login.LoginException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main extends ListenerAdapter implements Runnable {
@@ -32,7 +36,17 @@ public class Main extends ListenerAdapter implements Runnable {
     private boolean debug;
     private mutesEvent noraid;
     private RaidProtection raidProtection;
+    public final static Configuration configuration;
 
+    static {
+        Configuration config = null;
+        try {
+            config = new Configuration("./config.json");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        configuration = config;
+    }
 
     public mutesEvent getNoraid() {
         return noraid;
@@ -72,12 +86,12 @@ public class Main extends ListenerAdapter implements Runnable {
     public void onReady(ReadyEvent event) {
     }
 
-    private Main(String[] args) throws LoginException, InterruptedException {
+    private Main(String[] args) throws LoginException, InterruptedException, IOException {
 
         if (args.length != 0 && args[0].equalsIgnoreCase("debug")) debug = true;
 
         commandCore = new CommandCore(this);
-        jda = new JDABuilder(AccountType.BOT).setToken(readToken()).build();
+        jda = new JDABuilder(AccountType.BOT).setToken(configuration.getString("token", "-- Insert your token here ! --")).setGame(Game.playing(configuration.getString("game", "eat cookies"))).build();
         jda.awaitReady();
         this.raidProtection = new RaidProtection();
 
@@ -106,6 +120,7 @@ public class Main extends ListenerAdapter implements Runnable {
             new Thread(new Main(args), "main-bot").start();
         } catch (Exception e) {
             e.printStackTrace();
+            configuration.save();
         }
     }
 
@@ -141,6 +156,8 @@ public class Main extends ListenerAdapter implements Runnable {
 
         }
 
+        configuration.save();
+
         jda.shutdownNow();
         System.exit(1);
 
@@ -148,54 +165,12 @@ public class Main extends ListenerAdapter implements Runnable {
 
     public String getConfig(String path) {
 
-        try {
+        JSONObject json = configuration.getJsonObject("config", new JSONObject());
 
-            File file = new File("config");
-            if (!file.exists()) file.createNewFile();
-
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            String line = br.readLine();
-
-            while (line != null) {
-
-                if (line.startsWith(path + ": ")) return line.replaceFirst(path + ": ", "");
-
-                line = br.readLine();
-            }
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-
-        }
-
-        return null;
+        return json.getString(path);
 
     }
-
-    public String readToken() {
-
-        try {
-
-            File file = new File("token");
-            if (!file.exists()) file.createNewFile();
-
-            BufferedReader br = new BufferedReader(new FileReader(file));
-
-            String token = br.readLine();
-            br.close();
-            return token;
-
-        } catch (Throwable e) {
-            e.printStackTrace();
-            return null;
-        }
-
-    }
-
     public RaidProtection getRaidProtection() {
         return raidProtection;
     }
 }
-
-
